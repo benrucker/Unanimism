@@ -6,8 +6,8 @@ import time
 MYID = 592895305125593228
 
 
-class Consentaneous(commands.Bot):
-    """Consentaneous \\kän(t)-sən-ˈtā-nē-əs\\ adjective: done or made by the consent of all."""
+class Unanimism(commands.Bot):
+    """Unanimism \\ yüˈnanəˌmizəm \\ noun: unifying principles are more significant than personal individualities."""
 
     def __init__(self, command_prefix):
         super().__init__(command_prefix=command_prefix)
@@ -41,7 +41,7 @@ class Consentaneous(commands.Bot):
 if __name__ == '__main__':
     with open('secret') as f:
         secret = f.read()
-    bot = Consentaneous(command_prefix=commands.when_mentioned_or('c.'))
+    bot = Unanimism(command_prefix=commands.when_mentioned_or('c.'))
     bot.load_extension('polls')
 
     @commands.is_owner()
