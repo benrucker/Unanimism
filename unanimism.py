@@ -41,8 +41,9 @@ class Unanimism(commands.Bot):
 if __name__ == '__main__':
     with open('secret') as f:
         secret = f.read()
-    bot = Unanimism(command_prefix=commands.when_mentioned_or('c.'))
+    bot = Unanimism(command_prefix=commands.when_mentioned_or('u.'))
     bot.load_extension('polls')
+    bot.load_extension('presence')
 
     @commands.is_owner()
     @bot.command()
