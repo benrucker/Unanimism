@@ -44,14 +44,18 @@ class Polls(commands.Cog):
         # await self.send_poll_embed(poll, ctx)
 
     def make_poll_embed(self, poll: Poll, ctx):
-        embed = discord.Embed(title=f'Poll: **{poll.title}**',
-                              description=f'Voting is **{"not" if not poll.active else ""}** enabled.',
-                              color=0x5783ae)
+        if poll.active:
+            embed = discord.Embed(title=f'Poll: **{poll.title}**',
+                                description=f'Voting is enabled! `u.voteon {poll.title}` to vote.',
+                                color=0x5783ae)
+        else:
+            embed = discord.Embed(title=f'Poll: **{poll.title}**',
+                                description=f'Voting is **not** enabled. `u.begin {poll.title}` to open it up!',
+                                color=0x5783ae)
         for i, entry in enumerate(sorted(poll.entries.items(), key=lambda x: x[1], reverse=True)):
             if i > len(NUMBERMOJI):
                 break
-            embed.add_field(
-                            name=f'Votes: {float(entry[1])}',
+            embed.add_field(name=f'Votes: {float(entry[1])}',
                             value=f'{NUMBERMOJI[i+1]} {entry[0]}',
                             inline=False)
         poll_owner = self.bot.get_user(poll.owner_id)
@@ -83,7 +87,6 @@ class Polls(commands.Cog):
         entries = r.content.split(', ')
         poll.add_entries(entries)
         await ctx.send('Poll created!', embed=self.make_poll_embed(poll, ctx))
-        # await self.send_poll_embed(poll, ctx)
 
     def activate(self, poll):
         poll.active = True
@@ -97,7 +100,7 @@ class Polls(commands.Cog):
         for poll in self.polls[ctx.channel.id]:
             if poll.title == title:
                 self.activate(poll)
-                await ctx.send('Poll activated')
+                await ctx.send(f'Poll activated! `u.show {poll.title}` to see the results after voting!')
                 await self.send_votable(ctx, poll)
 
     def get_poll(self, channel_id: int, title: str) -> Poll:
@@ -112,7 +115,8 @@ class Polls(commands.Cog):
         i = 0
         reaction_calls = list()
         for title in poll.entries.keys():
-            msg = await ctx.send(':' + ALPHAMOJI[i] + ': ' + title)
+            # msg = await ctx.send(':' + ALPHAMOJI[i] + ': ' + title)
+            msg = await ctx.send('**' + title + '**')
             for j in range(1,4):
                 reaction_calls.append(msg.add_reaction(NUMBERMOJI[j]))
             self.listen_to(msg, poll)
@@ -124,7 +128,7 @@ class Polls(commands.Cog):
         poll = self.get_poll(ctx.channel.id, title)
         if not poll.active:
             await ctx.send(f'Voting on {poll.title} has not begun yet. If you wanna get \'er movin\','+
-                           f'say `c.begin {poll.title}`.')
+                           f'say `u.begin {poll.title}`.')
         await self.send_votable(ctx, title)
 
     def listen_to(self, msg: discord.Message, poll: Poll):
@@ -142,10 +146,12 @@ class Polls(commands.Cog):
                     poll.add_vote(self.entry_from(msg),
                                   self.voter_from(user),
                                   self.degree_from(reaction))
+                    await asyncio.sleep(1)
+                    await reaction.remove(user)
 
     def entry_from(self, msg: discord.Message) -> str:
         print(f'Getting entry title from {msg.content}')
-        out = ' '.join(msg.content.split(' ')[1:])
+        out = msg.content[2:-2]
         print(f'Got entry title {out}')
         return out
 
@@ -157,7 +163,7 @@ class Polls(commands.Cog):
         print(f'Got degree {deg} from {str(reaction)}')
         return deg
 
-    @commands.command(aliases=['show'])
+    @commands.command(aliases=['show', 'results'])
     async def showpoll(self, ctx, title: str, *rest):
         if rest == '-d':
             await self.send_poll(self.get_poll(ctx.channel.id, title), ctx)
