@@ -4,7 +4,7 @@ import discord
 from discord.enums import ActivityType
 from discord.ext import commands, tasks
 
-PRESENCES = [(ActivityType.watching,  'for u.help'),
+PRESENCES = [(ActivityType.watching,  'for u.help or u.poll'),
              (ActivityType.playing,   'Democracy'),
              (ActivityType.listening, 'your complaints'),
             ]
