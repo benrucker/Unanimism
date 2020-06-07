@@ -1,0 +1,54 @@
+import asyncio
+import discord
+from discord.ext import commands
+import time
+
+MYID = 592895305125593228
+
+
+class Consentaneous(commands.Bot):
+    """Consentaneous \\kän(t)-sən-ˈtā-nē-əs\\ adjective: done or made by the consent of all."""
+
+    def __init__(self, command_prefix):
+        super().__init__(command_prefix=command_prefix)
+
+    def log_message(self, message):
+        print(f'[{time.ctime()}] {message.author.name} - {message.guild} #{message.channel}: {message.content}')
+
+    async def process_commands(self, message):
+        """Process the commands for a message."""
+        if message.author.bot:
+            if message.author.id == MYID:
+                self.log_message(message)
+            return
+
+        ctx = await self.get_context(message)
+        if ctx.prefix:
+            self.log_message(message)
+        await self.invoke(ctx)
+
+    async def on_message(self, message):
+        """Handle received messages."""
+        await self.process_commands(message)
+
+    async def on_ready(self):
+        print(f'Logged into {len(self.guilds)} guilds:')
+        for guild in list(self.guilds):
+            print(f'\t{guild.name}:{guild.id}')
+        print("Ready to democracy.")
+
+
+if __name__ == '__main__':
+    with open('secret') as f:
+        secret = f.read()
+    bot = Consentaneous(command_prefix=commands.when_mentioned_or('c.'))
+    bot.load_extension('polls')
+
+    @commands.is_owner()
+    @bot.command()
+    async def reload(ctx):
+        await ctx.send('Reloading ' + ', '.join([(str(x)) for x in bot.extensions]))
+        for ext in bot.extensions:
+            bot.reload_extension(ext)
+
+    bot.run(secret)

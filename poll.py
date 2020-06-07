@@ -1,0 +1,136 @@
+from typing import Union
+
+class Voter():
+    def __init__(self, id: int, name: str):
+        self.id = id
+        self.name = name
+
+    def __eq__(self, other):
+        return self.id == other.id
+
+    def __str__(self):
+        return str(self.name) + ':' + str(self.id)
+
+
+class EntryVotes():
+    """This class stores the votes for a single poll entry."""
+    def __init__(self, votes: Union[dict, None], ordinance=3):
+        """Construct an EntryVotes object. If votes is none, construct an empty list."""
+        if votes and type(votes) is not dict:
+            raise RuntimeError("Votes parameter is not of type dict")
+        if not votes:
+            votes = dict()
+        for i in range(1, ordinance+1):
+            if i not in votes.keys():
+                votes[i] = set()
+        self.votes = votes
+        self.ordinance = ordinance
+
+    def add_vote(self, degree: int, voter: Voter):
+        self.votes[degree].add(voter)
+
+    def remove_vote(self, degree: int, voter: Voter):
+        self.votes[degree].remove(voter)
+
+    def remove_votes_from(self, voter: Voter):
+        for v in self.votes:
+            v.pop(voter)
+
+    def change_vote(self, old_deg: int, new_deg: int, voter: Voter):
+        self.remove_vote(old_deg, voter)
+        self.add_vote(new_deg, voter)
+
+    def __str__(self) -> str:
+        return str(self.votes)
+
+    def __float__(self) -> float:
+        out = 0
+        for i, v in enumerate(self.votes.values()):
+            # if i == 0:
+            #     continue  # first elem always zero
+            out += len(v) / (2**(i))
+        return out
+
+    def __int__(self) -> int:
+        return int(float(self))
+
+    def __add__(self, other):
+        out = dict()  # list(set(Voter))
+        for c in range(1, max(len(self.votes), len(other.votes))):
+            if c < len(self.votes) and c < len(other.votes):
+                out[c] = self.votes[c] + other.votes[c]
+            elif c < len(self.votes):
+                out[c] = self.votes[c]
+            else:
+                out[c] = other.votes[c]
+        return EntryVotes(ordinance=self.ordinance, votes=out)
+
+    def __lt__(self, other):
+        return float(self) < float(other)
+
+
+class Poll():
+    """A poll object!"""
+
+    def __init__(self, title, guild_id, channel_id, owner_id, num_votes=1, ordinal=True):
+        self.title = title
+        self.guild_id = guild_id
+        self.channel_id = channel_id
+        self.owner_id = owner_id
+        self.active = False
+        self.num_votes_per_person = num_votes
+        self.ordinal = ordinal
+        self.entries = dict()  # str, EntryVotes
+        self.active_messages = set()
+
+    def open_voting(self):
+        self.active = True
+
+    def close_voting(self):
+        self.active = False
+
+    def add_vote(self, entry: str, voter: Voter, degree: int):
+        if not self.active:
+            raise RuntimeError(f'Poll {self.title} is not active.')
+        self.entries[entry].add_vote(degree, Voter)
+
+    def set_num_choices(self, num: int):
+        self.num_votes_per_person = num
+
+    def add_entry(self, entry):
+        if entry not in self.entries.keys():
+            self.entries[entry] = EntryVotes(None)
+
+    def add_entries(self, _entries):
+        for entry in _entries:
+            self.add_entry(entry)
+
+    def combine_entries(self, a: str, b: str):
+        """Combines the votes of two entries a and b into a."""
+        if a not in self.entries or b not in self.entries:
+            raise KeyError(f'{a if a not in self.entries else b} not in entries')
+        self.entries[a] = a + b
+        del self.entries[b]
+
+    def combine_n_entries(self, *entries):
+        # if any([e not in self.entries.keys() for e in entries]):
+        #     raise KeyError(f'Not all entries are in the poll')  # bad UX
+        base = None
+        for e in entries:
+            if e not in self.entries.keys():
+                continue
+            if not base:
+                e = base
+            else:
+                self.entries[base] += e
+                del self.entries[e]
+
+    def remove_entry(self, entry: str):
+        del self.entries[entry]
+
+    def register_message(self, message: int):
+        self.active_messages.add(message)
+
+    def __str__(self):
+        return 'Poll(title={0.title}, active={0.active}, ordinal={0.ordinal}, votes={0.entries})'\
+               .format(self)
