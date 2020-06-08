@@ -46,7 +46,7 @@ if __name__ == '__main__':
     bot.load_extension('presence')
 
     @commands.is_owner()
-    @bot.command()
+    @bot.command(hidden=True)
     async def reload(ctx):
         await ctx.send('Reloading ' + ', '.join([(str(x)) for x in bot.extensions]))
         for ext in bot.extensions:
