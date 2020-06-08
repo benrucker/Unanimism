@@ -63,7 +63,7 @@ class Polls(commands.Cog):
                                 color=0x5783ae)
         for i, entry in enumerate(sorted(poll.entries.items(), key=lambda x: x[1], reverse=True)):
             if i > len(NUMBERMOJI):
-                break
+                break  # add ellipsis equivalent
             embed.add_field(name=f'Votes: {float(entry[1])}',
                             value=f'{NUMBERMOJI[i+1]} {entry[0]}',
                             inline=False)
@@ -106,6 +106,7 @@ class Polls(commands.Cog):
 
     @commands.command(aliases=['begin'])
     async def beginpoll(self, ctx, title: str):
+        """Turn on voting for a poll!"""
         for poll in self.polls[ctx.channel.id]:
             if poll.title == title:
                 self.activate(poll)
@@ -134,6 +135,7 @@ class Polls(commands.Cog):
 
     @commands.command(aliases=['vote'])
     async def voteon(self, ctx, title: str):
+        """Send a poll to be voted on!"""
         poll = self.get_poll(ctx.channel.id, title)
         if not poll.active:
             await ctx.send(f'Voting on {poll.title} has not begun yet. If you wanna get \'er movin\','+
@@ -174,6 +176,7 @@ class Polls(commands.Cog):
 
     @commands.command(aliases=['show', 'results'])
     async def showpoll(self, ctx, title: str, *rest):
+        """See the results of a poll!"""
         if rest == '-d':
             await self.send_poll(self.get_poll(ctx.channel.id, title), ctx)
         else:
@@ -181,17 +184,29 @@ class Polls(commands.Cog):
 
     @commands.command(aliases=['list', 'showpolls'])
     async def listpolls(self, ctx):
+        """See what polls are out there!"""
         out = ''
         for polls in self.polls.values():
             for poll in polls:
                 out += '**' + poll.title + '**\n'
-        await ctx.send(out)
+        if out:
+            await ctx.send(out)
+        else:
+            await ctx.send('There are no active polls right now. Make your own with `u.poll <title>`!')
 
     @commands.command(aliases=['add','addentry'])
     async def addto(self, ctx, title: str, *, entries: str):
+        """Add some entries to a poll!"""
         self.get_poll(ctx.channel.id, title).add_entries(entries.split(', '))
         await ctx.send('Added')
 
-    @commands.command(aliases=[])
+    @commands.command(aliases=[], hidden=True)
     async def combine(self, ctx, title: str, *, entries: str):
+        """Combine entries and their votes into one entry."""
+        # needs a usability and accuracy rework
         self.get_poll(ctx.channel.id, title).combine_entries(*entries.split(', '))
+
+    @commands.is_owner()
+    @commands.command(aliases=['reset'], hidden=True)
+    async def resetpolls(self, ctx):
+        self.polls: Dict[int, Set[Poll]] = dict()
