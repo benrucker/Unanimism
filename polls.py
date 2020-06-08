@@ -15,13 +15,21 @@ def setup(bot):
 class Polls(commands.Cog):
     """Cog to interface polls with discord."""
 
-    def load_polls(self) -> Dict[int, Set[Poll]]:
-        # unpickle polls obj
-        return dict()
-
     def __init__(self, bot):
         self.bot = bot
         self.polls = self.load_polls()  # dict(int, set(Poll))
+
+    def load_polls(self) -> Dict[int, Set[Poll]]:
+        try:
+            with open('polls.unm', 'rb') as f:
+                return pickle.load(f)
+        except:
+            print('No poll object to load')
+            return dict()
+
+    def cog_unload(self):
+        with open('polls.unm', 'wb') as f:
+            pickle.dump(self.polls, f)
 
     def add_poll(self, poll):
         channel = poll.channel_id
