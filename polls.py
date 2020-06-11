@@ -96,7 +96,6 @@ class Polls(commands.Cog):
             return self.make_active_poll_embed(poll, ctx)
         else:
             return self.make_inactive_poll_embed(poll, ctx)
-            
 
     async def send_poll_embed(self, poll: Poll, ctx):
         await ctx.send(embed=self.make_poll_embed(poll, ctx))
@@ -211,13 +210,12 @@ class Polls(commands.Cog):
     async def listpolls(self, ctx):
         """See what polls are out there!"""
         out = ''
-        for polls in self.polls.values():
-            for poll in polls:
-                out += '**' + poll.title + '**\n'
-        if out:
-            await ctx.send(out)
-        else:
+        if ctx.channel.id not in self.polls or len(self.polls[ctx.channel.id]) == 0:
             await ctx.send('There are no active polls right now. Make your own with `u.poll <title>`!')
+        else:    
+            for poll in self.polls[ctx.channel.id]:
+                out += '\n**' + poll.title + '**'
+            await ctx.send(out)
 
     @commands.command(aliases=['add','addentry'])
     async def addto(self, ctx, title: str, *, entries: str):
