@@ -30,7 +30,7 @@ class Presence(commands.Cog):
             await self.bot.change_presence(activity=discord.Activity(
                 type=curr[0], name=curr[1]
             ))
-            await asyncio.sleep(30)
+            # await asyncio.sleep(30)
 
     @change_presence_task.before_loop
     async def before_presence_task(self):
