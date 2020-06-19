@@ -1,7 +1,7 @@
 import asyncio
 import discord
 from discord.ext import commands
-from typing import Dict, Set, Union
+from typing import Dict, Optional, Set, Union
 import pickle
 from poll import Poll, Voter
 
@@ -100,7 +100,7 @@ class Polls(commands.Cog):
     async def send_poll_embed(self, poll: Poll, ctx):
         await ctx.send(embed=self.make_poll_embed(poll, ctx))
 
-    @commands.command(aliases=['addpoll', 'p'])
+    @commands.command(aliases=['p'])
     async def poll(self, ctx, title: str):
         """Create a poll with a one-word title!"""
         poll = Poll(title, ctx.guild.id, ctx.channel.id, ctx.author.id)
@@ -128,8 +128,8 @@ class Polls(commands.Cog):
         poll.active = False
         del self.polls[poll]
 
-    @commands.command(aliases=['begin'])
-    async def beginpoll(self, ctx, title: str):
+    @commands.command(aliases=['beginpoll'])
+    async def begin(self, ctx, title: str):
         """Turn on voting for a poll!"""
         for poll in self.polls[ctx.channel.id]:
             if poll.title == title:
@@ -198,16 +198,16 @@ class Polls(commands.Cog):
         print(f'Got degree {deg} from {str(reaction)}')
         return deg
 
-    @commands.command(aliases=['show', 'results'])
-    async def showpoll(self, ctx, title: str, *rest):
+    @commands.command(aliases=['showpoll', 'results'])
+    async def show(self, ctx, title: str, *rest):
         """See the results of a poll!"""
         if rest == '-d':
             await self.send_poll(self.get_poll(ctx.channel.id, title), ctx)
         else:
             await self.send_poll_embed(self.get_poll(ctx.channel.id, title), ctx)
 
-    @commands.command(aliases=['list', 'showpolls'])
-    async def listpolls(self, ctx):
+    @commands.command(name='list', aliases=['listpolls', 'showpolls'])
+    async def _list(self, ctx):
         """See what polls are out there!"""
         out = ''
         if ctx.channel.id not in self.polls or len(self.polls[ctx.channel.id]) == 0:
