@@ -137,6 +137,10 @@ class Poll():
     def remove_entry(self, entry: str):
         del self.entries[entry]
 
+    def remove_votes_from_user(self, id: int):
+        for entry in self.entries.values():
+            entry.remove_votes_from(Voter(id, None))
+
     def register_message(self, message: int):
         self.active_messages.add(message)
 
