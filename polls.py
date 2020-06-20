@@ -1,9 +1,11 @@
 import asyncio
 import discord
 from discord.ext import commands
-from typing import Dict, Optional, Set, Union
+from importlib import reload
 import pickle
+import poll
 from poll import Poll, Voter
+from typing import Dict, Optional, Set, Union
 
 ALPHAMOJI = ['regional_indicator_a', 'regional_indicator_b', 'regional_indicator_c', 'regional_indicator_d', 'regional_indicator_e', 'regional_indicator_f', 'regional_indicator_g', 'regional_indicator_h', 'regional_indicator_i', 'regional_indicator_j', 'regional_indicator_k', 'regional_indicator_l', 'regional_indicator_m', 'regional_indicator_n', 'regional_indicator_o', 'regional_indicator_p', 'regional_indicator_q', 'regional_indicator_r', 'regional_indicator_s', 'regional_indicator_t', 'regional_indicator_u', 'regional_indicator_v', 'regional_indicator_w', 'regional_indicator_x', 'regional_indicator_y', 'regional_indicator_z']
 ALPHAMOJIRED = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z']
@@ -11,7 +13,6 @@ NUMBERMOJI = ['0️⃣', '1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', 
 
 def setup(bot):
     bot.add_cog(Polls(bot))
-
 
 class Polls(commands.Cog):
     """Cog to interface polls with discord."""
@@ -29,6 +30,7 @@ class Polls(commands.Cog):
             return dict()
 
     def cog_unload(self):
+        reload(poll)
         with open('polls.unm', 'wb') as f:
             pickle.dump(self.polls, f)
 
