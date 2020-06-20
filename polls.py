@@ -102,6 +102,18 @@ class Polls(commands.Cog):
     async def send_poll_embed(self, poll: Poll, ctx):
         await ctx.send(embed=self.make_poll_embed(poll, ctx))
 
+    async def get_entries_from_user(self, ctx, poll: Poll, new_poll: bool =False):
+        await ctx.send(('Poll added! ' if new_poll else '')+
+                       'Send some entries to be voted on:\n'+
+                       'e.g. `entry one, entry two, etc`')
+
+        def check(msg):
+            return msg.author == ctx.author and msg.channel == ctx.channel
+
+        r = await self.bot.wait_for('message', check=check)
+        entries = r.content.split(', ')
+        poll.add_entries(entries)
+
     @commands.command(aliases=['p'])
     async def poll(self, ctx, title: str):
         """Create a poll with a one-word title!"""
@@ -112,15 +124,7 @@ class Polls(commands.Cog):
         # else:
         #     await ctx.send('Poll added')
         # await self.send_poll(poll, ctx)
-        await ctx.send('Poll added! Send some entries to vote on:\n'+
-                       'e.g. `entry one, entry two, etc`')
-
-        def check(msg):
-            return msg.author == ctx.author and msg.channel == ctx.channel
-
-        r = await self.bot.wait_for('message', check=check)
-        entries = r.content.split(', ')
-        poll.add_entries(entries)
+        await self.get_entries_from_user(ctx, poll, new_poll=True)
         await ctx.send('Poll created!', embed=self.make_poll_embed(poll, ctx))
 
     def activate(self, poll):
@@ -220,10 +224,14 @@ class Polls(commands.Cog):
             await ctx.send(out)
 
     @commands.command(aliases=['add','addentry'])
-    async def addto(self, ctx, title: str, *, entries: str):
+    async def addto(self, ctx, title: str, *, entries: Optional[str]):
         """Add some entries to a poll!"""
-        self.get_poll(ctx.channel.id, title).add_entries(entries.split(', '))
-        await ctx.send('Added')
+        _poll = self.get_poll(ctx.channel.id, title)
+        if entries:
+            _poll.add_entries(entries.split(', '))
+        else:
+            self.get_entries_from_user(ctx, _poll)
+        await ctx.send(f'Entries added! `u.show {_poll.title}` to see them!')
 
     @commands.command(aliases=[], hidden=True)
     async def combine(self, ctx, title: str, *, entries: str):
