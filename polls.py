@@ -143,6 +143,14 @@ class Polls(commands.Cog):
                 await ctx.send(f'Poll activated! `u.show {poll.title}` to see the results after voting!')
                 await self.send_votable(ctx, poll)
 
+    @commands.command(aliases=['endpoll'])
+    async def end(self, ctx, title: str):
+        _p = self.get_poll(ctx.channel.id, title)
+        if _p.protected and ctx.author.id != _p.owner_id:
+            ctx.send('Sorry mate, this poll can only be closed by the owner!')
+        else:
+            self.deactivate(_p)
+
     def get_poll(self, channel_id: int, title: str) -> Poll:
         for poll in self.polls[channel_id]:
             if poll.title == title:
