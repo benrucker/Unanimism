@@ -68,7 +68,7 @@ class Polls(commands.Cog):
     def make_active_poll_embed(self, poll, ctx):
         sorted_entries = sorted(poll.entries.items(), key=lambda x: x[1], reverse=True)
         embed = discord.Embed(title=f'Poll: **{poll.title}**',
-                            description=f'Voting is enabled! `u.voteon {poll.title}` to vote.',
+                            description=f'Voting is enabled! `u.voteon {poll.title}` to vote, or `u.addto {poll.title}` to add entries!',
                             color=0x5783ae)
         for i, entry in enumerate(sorted_entries):
             if i > len(NUMBERMOJI):
