@@ -99,9 +99,11 @@ class Poll():
     def add_vote(self, entry: str, voter: Voter, degree: int):
         if not self.active:
             raise RuntimeError(f'Poll {self.title} is not active.')
-        self.entries[entry].add_vote(degree, Voter)
+        self.entries[entry].add_vote(degree, voter)
 
-    def set_num_choices(self, num: int):
+    def set_num_votes_per_person(self, num: int =1, half: bool =False):
+        if half:
+            self.num_votes_per_person = ceil(len(self.entries) / 2)
         self.num_votes_per_person = num
 
     def add_entry(self, entry):
