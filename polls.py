@@ -213,12 +213,21 @@ class Polls(commands.Cog):
         return deg
 
     @commands.command(aliases=['showpoll', 'results'])
-    async def show(self, ctx, title: str, *rest):
+    async def show(self, ctx, title: str, *rest: Optional[str]):
         """See the results of a poll!"""
-        if rest == '-d':
-            await self.send_poll(self.get_poll(ctx.channel.id, title), ctx)
+        _p = self.get_poll(ctx.channel.id, title)
+        if _p.protected:
+            if ctx.author.id == _p.owner_id:
+                dest = ctx.author
+            else:
+                await ctx.send('This poll is protected, so only the owner can see the results!')
+                return
         else:
-            await self.send_poll_embed(self.get_poll(ctx.channel.id, title), ctx)
+            dest = ctx
+        if rest == '-d':
+            await self.send_poll(_p, dest)
+        else:
+            await self.send_poll_embed(_p, dest)
 
     @commands.command(name='list', aliases=['listpolls', 'showpolls'])
     async def _list(self, ctx):
