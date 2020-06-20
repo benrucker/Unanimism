@@ -1,7 +1,7 @@
 from typing import Union
 
 class Voter():
-    def __init__(self, id: int, name: str):
+    def __init__(self, id: int, name: Optional[str]):
         self.id = id
         self.name = name
 
@@ -10,6 +10,9 @@ class Voter():
 
     def __str__(self):
         return str(self.name) + ':' + str(self.id)
+
+    def __hash__(self):
+        return self.id
 
 
 class EntryVotes():
