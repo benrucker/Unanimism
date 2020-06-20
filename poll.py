@@ -18,16 +18,16 @@ class Voter():
 
 class EntryVotes():
     """This class stores the votes for a single poll entry."""
-    def __init__(self, votes: Union[dict, None], ordinance=3):
+    def __init__(self, votes: Optional[Dict[int, Set[Voter]]], ordinance=3):
         """Construct an EntryVotes object. If votes is none, construct an empty list."""
         if votes and type(votes) is not dict:
             raise RuntimeError("Votes parameter is not of type dict")
-        if not votes:
+        elif not votes:
             votes = dict()
         for i in range(1, ordinance+1):
             if i not in votes.keys():
                 votes[i] = set()
-        self.votes = votes
+        self.votes: Dict[int, Set[Voter]] = votes
         self.ordinance = ordinance
 
     def add_vote(self, degree: int, voter: Voter):
