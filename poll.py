@@ -36,9 +36,11 @@ class EntryVotes():
     def remove_vote(self, degree: int, voter: Voter):
         self.votes[degree].remove(voter)
 
-    def remove_votes_from(self, voter: Voter):
-        for v in self.votes:
-            v.pop(voter)
+    def remove_votes_from(self, voter):
+        for entry_votes in self.votes.values():
+            if voter in entry_votes:
+                print(f'Removing vote from user {voter}')
+                entry_votes.remove(voter)
 
     def change_vote(self, old_deg: int, new_deg: int, voter: Voter):
         self.remove_vote(old_deg, voter)
