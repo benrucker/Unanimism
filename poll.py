@@ -1,4 +1,5 @@
-from typing import Union
+from math import ceil
+from typing import Dict, Set, Optional, Union
 
 class Voter():
     def __init__(self, id: int, name: Optional[str]):
