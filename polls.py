@@ -130,7 +130,7 @@ class Polls(commands.Cog):
     async def get_config_from_user(self, ctx, poll: Poll, new_poll=False):
         # protected, number of choices per vote, max votes per poll
         msgout = await ctx.send(
-            'Thanks for making a poll! Do you want this poll to be private? (yeah/nah)\n'+
+            'Thanks for making a poll! Do you want this poll to be private? **(yeah/nah)**\n'+
             'This means **only you** can see the results, but everyone can still vote.'
         )
         def check(msg):
