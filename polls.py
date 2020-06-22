@@ -153,7 +153,7 @@ class Polls(commands.Cog):
 
     def get_poll(self, channel_id: int, title: str) -> Poll:
         for poll in self.polls[channel_id]:
-            if poll.title == title:
+            if poll.title.lower() == title.lower():
                 return poll
         raise KeyError("Poll not found")
 
