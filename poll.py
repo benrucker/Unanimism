@@ -74,6 +74,17 @@ class EntryVotes():
     def __lt__(self, other):
         return float(self) < float(other)
 
+    def __contains__(self, item):
+        if type(item) is int:
+            item = Voter(item, None)
+        else:
+            raise TypeError('Containment test must be int or Voter')
+        for s in self.votes.values():
+            if item in s:
+                return True
+        return False
+            
+
 
 class Poll():
     """A poll object!"""
