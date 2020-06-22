@@ -194,9 +194,10 @@ class Polls(commands.Cog):
         """Send a poll to be voted on!"""
         poll = self.get_poll(ctx.channel.id, title)
         if not poll.active:
-            await ctx.send(f'Voting on {poll.title} has not begun yet. If you wanna get \'er movin\','+
+            await ctx.send(f'Voting on {poll.title} has not begun yet. If you wanna get \'er movin\', '+
                            f'say `u.begin {poll.title}`.')
-        await self.send_votable(ctx, title)
+        else:
+            await self.send_votable(ctx, title)
 
     def listen_to(self, msg: discord.Message, poll: Poll):
         poll.register_message(msg.id)
