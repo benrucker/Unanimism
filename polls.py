@@ -152,7 +152,7 @@ class Polls(commands.Cog):
         poll.active = False
         del self.polls[poll]
 
-    @commands.command(aliases=['beginpoll'])
+    @commands.command(aliases=[])
     async def begin(self, ctx, title: str):
         """Turn on voting for a poll!"""
         for poll in self.polls[ctx.channel.id]:
@@ -161,7 +161,7 @@ class Polls(commands.Cog):
                 await ctx.send(f'Poll activated! `u.show {poll.title}` to see the results after voting!')
                 await self.send_votable(ctx, poll)
 
-    @commands.command(aliases=['endpoll'])
+    @commands.command(aliases=[])
     async def end(self, ctx, title: str):
         _p = self.get_poll(ctx.channel.id, title)
         if _p.protected and ctx.author.id != _p.owner_id:
@@ -230,8 +230,8 @@ class Polls(commands.Cog):
         print(f'Got degree {deg} from {str(reaction)}')
         return deg
 
-    @commands.command(aliases=['showpoll', 'results'])
-    async def show(self, ctx, title: str, *rest: Optional[str]):
+    @commands.command(aliases=['results'])
+    async def show(self, ctx, title: str, here: Optional[str]):
         """See the results of a poll!"""
         _p = self.get_poll(ctx.channel.id, title)
         if _p.protected:
@@ -247,7 +247,7 @@ class Polls(commands.Cog):
         else:
             await self.send_poll_embed(_p, dest)
 
-    @commands.command(name='list', aliases=['listpolls', 'showpolls'])
+    @commands.command(name='list', aliases=[])
     async def _list(self, ctx):
         """See what polls are out there!"""
         out = ''
@@ -258,7 +258,7 @@ class Polls(commands.Cog):
                 out += '\n**' + poll.title + '**'
             await ctx.send(out)
 
-    @commands.command(aliases=['add','addentry'])
+    @commands.command(aliases=[])
     async def addto(self, ctx, title: str, *, entries: Optional[str]):
         """Add some entries to a poll!"""
         _poll = self.get_poll(ctx.channel.id, title)
@@ -292,6 +292,6 @@ class Polls(commands.Cog):
         await ctx.author.send(out)
 
     @commands.is_owner()
-    @commands.command(aliases=['reset'], hidden=True)
+    @commands.command(aliases=[], hidden=True)
     async def resetpolls(self, ctx):
         self.polls: Dict[int, Set[Poll]] = dict()
