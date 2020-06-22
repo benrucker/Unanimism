@@ -261,6 +261,18 @@ class Polls(commands.Cog):
         """Remove your votes from an open poll."""
         self.get_poll(ctx.channel.id, poll).remove_votes_from_user(ctx.author.id)
 
+    @commands.command(aliases=[])
+    async def myvotes(self, ctx, poll: str):
+        p = self.get_poll(ctx.channel.id, poll)
+        v = Voter(ctx.author.id, None)  # membership tests don't require name
+        out = f'__Your votes on **{p.title}**:__\n'
+        for entry, entryvotes in p.entries.items():
+            for pos in entryvotes.votes.keys():
+                if v in entryvotes.votes[pos]:
+                    out += f'{str(pos)+". " if p.ordinal else ""}{entry}\n'
+        out += f'Send `u.removevotes {p.title}` back in the other channel to reset your votes!'
+        await ctx.author.send(out)
+
     @commands.is_owner()
     @commands.command(aliases=['reset'], hidden=True)
     async def resetpolls(self, ctx):
