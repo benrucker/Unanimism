@@ -246,7 +246,7 @@ class Polls(commands.Cog):
         _p = self.get_poll(ctx.channel.id, title)
         if _p.protected:
             if ctx.author.id == _p.owner_id:
-                if here == 'here':
+                if here.lower() == 'here':
                     dest = ctx
                 else:
                     dest = ctx.author
