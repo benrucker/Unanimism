@@ -32,7 +32,7 @@ class Polls(commands.Cog):
             return dict()
 
     def cog_unload(self):
-        reload(poll)
+        # reload(poll)
         with open('polls.unm', 'wb') as f:
             pickle.dump(self.polls, f)
 
