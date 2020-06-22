@@ -83,7 +83,15 @@ class EntryVotes():
             if item in s:
                 return True
         return False
-            
+
+    def __eq__(self, other):
+        if self.votes.keys() != other.votes.keys():
+            return False
+        else:
+            for k in self.votes.keys():
+                if self.votes[k] != other.votes[k]:
+                    return False
+        return True
 
 
 class Poll():
