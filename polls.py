@@ -316,7 +316,7 @@ class Polls(commands.Cog):
         await self.bot.close()
 
     def verify_saved_polls(self, filename):
-        dummy_polls = Polls(None, 'backup', False)
+        dummy_polls = Polls(None, filename, False)
         print(dummy_polls.polls)
         print(self.polls)
         if not dummy_polls.polls == self.polls:
@@ -331,7 +331,7 @@ class Polls(commands.Cog):
     async def task_save_polls(self):
         # pause event loop
         print('backing up polls')
-        backup = 'backup'
+        backup = 'backup.unm'
         self.save_polls(backup)
         print('saved')
         if not self.verify_saved_polls(backup):
