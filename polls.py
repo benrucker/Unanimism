@@ -1,7 +1,8 @@
 import asyncio
 import discord
-from discord.ext import commands
+from discord.ext import commands, tasks
 from importlib import reload
+import os
 import pickle
 import poll
 from poll import Poll, Voter
@@ -14,27 +15,35 @@ YES = ['yes','yeah','yep','yeppers','of course','ye','y','ya','yah']
 NO  = ['no','n','nope','start over','nada', 'nah']
 
 def setup(bot):
-    bot.add_cog(Polls(bot))
+    bot.add_cog(Polls(bot, 'polls.unm', True))
 
 class Polls(commands.Cog):
     """Cog to interface polls with discord."""
 
-    def __init__(self, bot):
+    def __init__(self, bot, polls_file, enable: bool):
         self.bot = bot
-        self.polls = self.load_polls()  # dict(int, set(Poll))
+        self.polls = self.load_polls(polls_file)  # dict(int, set(Poll))
+        if enable:
+            self.task_save_polls.start()
 
-    def load_polls(self) -> Dict[int, Set[Poll]]:
+    def load_polls(self, polls_file: str) -> Dict[int, Set[Poll]]:
         try:
-            with open('polls.unm', 'rb') as f:
+            with open(polls_file, 'rb') as f:
                 return pickle.load(f)
         except:
             print('No poll object to load')
             return dict()
 
-    def cog_unload(self):
-        # reload(poll)
-        with open('polls.unm', 'wb') as f:
+    def save_polls(self, filename):
+        print('saving polls')
+        with open(filename, 'wb') as f:
             pickle.dump(self.polls, f)
+            print(f'saved polls to {filename}')
+
+    def cog_unload(self):
+        self.task_save_polls.cancel()
+        # reload(poll)
+        self.save_polls('polls.unm')
 
     def add_poll(self, poll):
         channel = poll.channel_id
@@ -305,3 +314,33 @@ class Polls(commands.Cog):
     async def しね(self, ctx):
         self.bot.unload_extension('polls')
         await self.bot.close()
+
+    def verify_saved_polls(self, filename):
+        dummy_polls = Polls(None, 'backup', False)
+        print(dummy_polls.polls)
+        print(self.polls)
+        if not dummy_polls.polls == self.polls:
+            return False
+        return True            
+        
+    def finalize_saved_polls(self, filename):
+        os.remove('polls.unm')
+        os.rename(filename, 'polls.unm')
+
+    @tasks.loop(hours=2)
+    async def task_save_polls(self):
+        # pause event loop
+        print('backing up polls')
+        backup = 'backup'
+        self.save_polls(backup)
+        print('saved')
+        if not self.verify_saved_polls(backup):
+            print('backup does not match current state. aborting')
+            return False
+        print('finalizing backup')
+        self.finalize_saved_polls(backup)
+        # resume event loop
+
+    @task_save_polls.before_loop
+    async def task_before_save_polls(self):
+        await self.bot.wait_until_ready()
