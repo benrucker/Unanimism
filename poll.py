@@ -97,7 +97,7 @@ class EntryVotes():
 class Poll():
     """A poll object!"""
 
-    def __init__(self, title, guild_id, channel_id, owner_id, num_votes=1, ordinal=True, protected=False):
+    def __init__(self, title, guild_id, channel_id, owner_id, num_votes=1, ordinal=False, protected=False):
         self.title = title
         self.guild_id = guild_id
         self.channel_id = channel_id
