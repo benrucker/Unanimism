@@ -89,7 +89,7 @@ class Polls(commands.Cog):
                 embed.add_field(name='Runners up:',
                                 value=', '.join(y for _,y in sorted_entries[len(NUMBERMOJI):]),
                                 inline=False)
-                break  # add ellipsis equivalent
+                break
             self.set_entry_field(embed, i+1, entry)
         self.set_author_footer(embed, poll)
         return embed
