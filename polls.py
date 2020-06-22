@@ -301,7 +301,7 @@ class Polls(commands.Cog):
         self.polls: Dict[int, Set[Poll]] = dict()
 
     @commands.is_owner()
-    @commands.command(aliases=['しね'], hidden=True)
-    async def die(self, ctx):
+    @commands.command(aliases=['die'])
+    async def しね(self, ctx):
         self.bot.unload_extension('polls')
         await self.bot.close()
