@@ -236,13 +236,16 @@ class Polls(commands.Cog):
         _p = self.get_poll(ctx.channel.id, title)
         if _p.protected:
             if ctx.author.id == _p.owner_id:
-                dest = ctx.author
+                if here == 'here':
+                    dest = ctx
+                else:
+                    dest = ctx.author
             else:
                 await ctx.send('This poll is protected, so only the owner can see the results!')
                 return
         else:
             dest = ctx
-        if rest == '-d':
+        if here == '-d':
             await self.send_poll(_p, dest)
         else:
             await self.send_poll_embed(_p, dest)
