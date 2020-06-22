@@ -299,3 +299,9 @@ class Polls(commands.Cog):
     @commands.command(aliases=[], hidden=True)
     async def resetpolls(self, ctx):
         self.polls: Dict[int, Set[Poll]] = dict()
+
+    @commands.is_owner()
+    @commands.command(aliases=['しね'], hidden=True)
+    async def die(self, ctx):
+        self.bot.unload_extension('polls')
+        await self.bot.close()
