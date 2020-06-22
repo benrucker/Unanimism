@@ -279,7 +279,7 @@ class Polls(commands.Cog):
         self.get_poll(ctx.channel.id, title).combine_entries(*entries.split(', '))
 
     @commands.command(aliases=['rv'])
-    async def removevotes(self, ctx, poll: str):
+    async def resetvotes(self, ctx, poll: str):
         """Remove your votes from an open poll."""
         self.get_poll(ctx.channel.id, poll).remove_votes_from_user(ctx.author.id)
 
