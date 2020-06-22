@@ -43,8 +43,8 @@ class Polls(commands.Cog):
 
     def cog_unload(self):
         self.task_save_polls.cancel()
-        # reload(poll)
         self.save_polls('polls.unm')
+        reload(poll)
 
     def add_poll(self, poll):
         channel = poll.channel_id
