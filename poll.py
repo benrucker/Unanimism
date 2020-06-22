@@ -166,3 +166,9 @@ class Poll():
     def __str__(self):
         return 'Poll(title={0.title}, active={0.active}, ordinal={0.ordinal}, votes={0.entries})'\
                .format(self)
+
+    def __eq__(self, other):
+        return self.__dict__ == other.__dict__
+
+    def __hash__(self):
+        return hash(self.__dict__.values())
