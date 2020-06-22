@@ -39,10 +39,12 @@ class Polls(commands.Cog):
     def add_poll(self, poll):
         channel = poll.channel_id
         if channel in self.polls and len(self.polls[channel]) >= 5:
+            print('channel limit hit')
             return False
         for _polls in self.polls.values():
             for _poll in _polls:
                 if poll.title == _poll.title:
+                    print('poll with that name already exists')
                     return False
 
         if channel not in self.polls:
