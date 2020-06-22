@@ -10,6 +10,8 @@ from typing import Dict, Optional, Set, Union
 ALPHAMOJI = ['regional_indicator_a', 'regional_indicator_b', 'regional_indicator_c', 'regional_indicator_d', 'regional_indicator_e', 'regional_indicator_f', 'regional_indicator_g', 'regional_indicator_h', 'regional_indicator_i', 'regional_indicator_j', 'regional_indicator_k', 'regional_indicator_l', 'regional_indicator_m', 'regional_indicator_n', 'regional_indicator_o', 'regional_indicator_p', 'regional_indicator_q', 'regional_indicator_r', 'regional_indicator_s', 'regional_indicator_t', 'regional_indicator_u', 'regional_indicator_v', 'regional_indicator_w', 'regional_indicator_x', 'regional_indicator_y', 'regional_indicator_z']
 ALPHAMOJIRED = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z']
 NUMBERMOJI = ['0️⃣', '1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣', '9️⃣', '🔟']
+YES = ['yes','yeah','yep','yeppers','of course','ye','y','ya','yah']
+NO  = ['no','n','nope','start over','nada', 'nah']
 
 def setup(bot):
     bot.add_cog(Polls(bot))
@@ -114,17 +116,31 @@ class Polls(commands.Cog):
         entries = r.content.split(', ')
         poll.add_entries(entries)
 
+    async def get_config_from_user(self, ctx, poll: Poll, new_poll=False):
+        # protected, number of choices per vote, max votes per poll
+        msgout = await ctx.send(
+            'Thanks for making a poll! Do you want this poll to be private? (yeah/nah)\n'+
+            'This means **only you** can see the results, but everyone can still vote.'
+        )
+        def check(msg):
+            return msg.author.id == ctx.author.id and msg.channel == ctx.channel
+        r = await self.bot.wait_for('message', check=check)
+        if r.content.lower() in YES:
+            poll.protected = True
+            print(f'set poll {poll.title} to private')
+
     @commands.command(aliases=['p'])
     async def poll(self, ctx, title: str):
         """Create a poll with a one-word title!"""
         poll = Poll(title, ctx.guild.id, ctx.channel.id, ctx.author.id)
-        if not self.add_poll(poll):
-            await ctx.send('Couldn\'t create poll')
-            return
         # else:
         #     await ctx.send('Poll added')
         # await self.send_poll(poll, ctx)
+        await self.get_config_from_user(ctx, poll, new_poll=True)
         await self.get_entries_from_user(ctx, poll, new_poll=True)
+        if not self.add_poll(poll):
+            await ctx.send('Couldn\'t create poll')
+            return
         await ctx.send('Poll created!', embed=self.make_poll_embed(poll, ctx))
 
     def activate(self, poll):
