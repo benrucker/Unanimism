@@ -359,8 +359,8 @@ class Polls(commands.Cog):
 
     def verify_saved_polls(self, filename):
         dummy_polls = Polls(None, filename, False)
-        print(dummy_polls.polls)
-        print(self.polls)
+        print(dummy_polls)
+        print(self)
         if not dummy_polls.polls == self.polls:
             return False
         return True            
