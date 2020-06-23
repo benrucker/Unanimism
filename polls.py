@@ -259,7 +259,10 @@ class Polls(commands.Cog):
 
     async def respond_to_vote(self, return_code: PollEnums, user, poll: Poll, entry: str, degree: int):
         if return_code == PollEnums.SUCCESS:
-            await user.send(f'Your vote for **{entry}** has been counted!')
+            out = f'Your vote for **{entry}** has been counted! '
+            remaining = poll.num_votes_per_person - poll.num_votes_by(user.id, degree)
+            out += f'You have {remaining} vote{"" if remaining == 1 else "s"} remaining!'
+            await user.send(out)
         elif return_code == PollEnums.VOTE_ALREADY_PRESENT:
             await user.send(f'Error: You\'ve already voted for **{degree}-{entry}**. '+
                             f'Say `u.myvotes {poll.title}` in the channel to see what you voted for!')
