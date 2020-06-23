@@ -377,7 +377,7 @@ class Polls(commands.Cog):
             _poll.add_entries(_entries)
         await ctx.send(f'Entries added! `u.show {_poll.title}` to see them!')
 
-    @commands.command(aliases=[], hidden=True)
+    @commands.command(aliases=[], hidden=False)
     async def combine(self, ctx, title: str):
         """Combine entries and their votes into one entry."""
         poll = self.get_poll(ctx.channel.id, title)
