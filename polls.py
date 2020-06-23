@@ -348,6 +348,13 @@ class Polls(commands.Cog):
         """Remove your votes from an open poll."""
         self.get_poll(ctx.channel.id, poll).remove_votes_from_user(ctx.author.id)
 
+    @commands.is_owner()
+    @commands.command(hidden=True)
+    async def resetallvotesfor(self, ctx, poll: str):
+        p = self.get_poll(ctx.channel.id, poll)
+        p.remove_all_votes()
+        await ctx.send(f'Votes for **{poll.title}** have been reset.')
+
     @commands.command(aliases=[])
     async def myvotes(self, ctx, poll: str):
         p = self.get_poll(ctx.channel.id, poll)
