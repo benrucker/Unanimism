@@ -137,7 +137,14 @@ class EntryVotes():
 
 
 class Poll():
-    """A poll object!"""
+    """A poll object!
+    
+    This class interfaces between external sources and EntryVotes objects.
+    Thus, this class acts as a restrictor for what can and can't be done
+    with EntryVotes objects. For example, this class enforces an ordinance of
+    either 3 or 1 on EntryVotes objects, even though the datatype seems to support
+    any value.
+    """
 
     def __init__(self, title, guild_id, channel_id, owner_id,
                  active=False, num_votes=1, can_vote_for_half=True, ordinal=False,
