@@ -421,6 +421,7 @@ class Polls(commands.Cog):
 
     @commands.command(aliases=[])
     async def myvotes(self, ctx, poll: str):
+        """Take a look at what you've voted for so far on a poll."""
         p = self.get_poll(ctx.channel.id, poll)
         v = Voter(ctx.author.id, None)  # membership tests don't require name
         out = f'__Your votes on **{p.title}**:__\n'
