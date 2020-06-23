@@ -138,10 +138,11 @@ class Poll():
         self.active = active
         self.can_vote_for_half = can_vote_for_half
         self.num_votes_per_person = num_votes
-        self.set_num_votes_per_person(num=num_votes, half=can_vote_for_half)
         self.ordinal = ordinal
         self.entries: Dict[str, EntryVotes] = dict() if not entries else entries
         self.active_messages = set() if not active_messages else active_messages
+        # init self.num_votes_per_person
+        self.set_num_votes_per_person(num=num_votes, half=can_vote_for_half)
 
     def open_voting(self):
         self.active = True
