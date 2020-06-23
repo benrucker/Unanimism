@@ -232,6 +232,7 @@ class Polls(commands.Cog):
         for title in poll.entries.keys():
             # msg = await ctx.send(':' + ALPHAMOJI[i] + ': ' + title)
             msg = await ctx.send('**' + title + '**')
+            await asyncio.sleep(.5)
             if poll.ordinal:
                 for j in range(1,4):
                     reaction_calls.append(msg.add_reaction(NUMBERMOJI[j]))
@@ -239,7 +240,9 @@ class Polls(commands.Cog):
                 reaction_calls.append(msg.add_reaction('☑️'))
             self.listen_to(msg, poll)
             i += 1
-        await asyncio.gather(*reaction_calls)
+        async with ctx.typing():
+            await asyncio.gather(*reaction_calls)
+            await ctx.send(f'Click the reactions to cast a vote! You can vote up to {poll.num_votes_per_person} times on this poll.')
 
     @commands.command(aliases=['vote'])
     async def voteon(self, ctx, title: str):
