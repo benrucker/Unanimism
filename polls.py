@@ -262,11 +262,7 @@ class Polls(commands.Cog):
         if channel.id in self.polls.keys():
             for poll in self.polls[channel.id]:
                 if msg.id in poll.active_messages:
-                    poll.add_vote(self.entry_from(msg),
-                                  self.voter_from(user),
-                                  self.degree_from(reaction))
-                    await asyncio.sleep(1)
-                    await reaction.remove(user)
+                    await self.process_vote(reaction, user, poll)
 
     def entry_from(self, msg: discord.Message) -> str:
         print(f'Getting entry title from {msg.content}')
