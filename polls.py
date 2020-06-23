@@ -370,6 +370,43 @@ class Polls(commands.Cog):
         else:
             await ctx.send(f'**{", ".join(entries[1:])}** were combined with **{entries[0]}**')
 
+    @commands.command()
+    async def edit(self, ctx, poll: str, *, options: str):
+        """Edit your poll.
+
+        Example usage: `u.edit <title> ordinal=False max_votes=1 protected=False`."""
+        p = self.get_poll(ctx.channel.id, poll)
+        if ctx.author.id not in (p.owner_id, 173978157349601283):
+            await ctx.send('Only the owner of a poll can edit its properties.')
+            return
+        out = ''
+        pairs = [x.split('=') for x in options.split(' ')]
+        for pair in pairs:
+            if pair[0] == 'ordinal':
+                v = pair[1].lower() == 'true'
+                p.set_ordinal(v)
+                out += f'set ordinal to {v}\n'
+            if pair[0] == 'max_votes':
+                try:
+                    v = int(pair[1])
+                    p.set_num_votes_per_person(num=v)
+                except:
+                    v = str(pair[1])
+                    if v != 'half':
+                        break
+                    p.set_num_votes_per_person(half=True)
+                finally:
+                    out += f'set num votes to {v}\n'
+            if pair[0] == 'protected':
+                v = bool(pair[1])
+                p.protected = v
+                out += f'set protected to {v}\n'
+        if out == '':
+            out = 'No changes made'
+        else:
+            out = 'Changes:\n' + out
+        await ctx.send(out)
+
     @commands.command(aliases=['rv'])
     async def resetvotes(self, ctx, poll: str):
         """Remove your votes from an open poll."""
