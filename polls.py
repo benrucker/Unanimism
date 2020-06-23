@@ -46,6 +46,30 @@ class Polls(commands.Cog):
         self.save_polls('polls.unm')
         reload(poll)
 
+    async def remove_poll_reactions(self):
+        for chanid, _polls in self.polls.items():
+            chan = await self.bot.fetch_channel(chanid)
+            for _p in _polls:
+                for msg in _p.active_messages:
+                    try:
+                        m = await chan.fetch_message(msg)
+                    except:
+                        continue
+                    print('removing reactions from', m.content)
+                    await m.clear_reactions()
+                _p.unregister_messages()
+
+    async def remove_votable_polls(self):
+        all_msg = list()
+        for chanid, _polls in self.polls.items():
+            chan = await self.bot.fetch_channel(chanid)
+            for _p in _polls:
+                def check(message):
+                    return message.id in _p.active_messages
+                await chan.purge(check=check)
+                _p.unregister_messages()
+
+
     def add_poll(self, poll):
         channel = poll.channel_id
         if channel in self.polls and len(self.polls[channel]) >= 5:
@@ -384,6 +408,10 @@ class Polls(commands.Cog):
     async def しね(self, ctx):
         self.bot.unload_extension('polls')
         await self.bot.close()
+
+    async def cleanup(self):
+        # await self.remove_poll_reactions()
+        await self.remove_votable_polls()
 
     def verify_saved_polls(self, filename):
         dummy_polls = Polls(None, filename, False)

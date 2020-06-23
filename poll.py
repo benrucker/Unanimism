@@ -227,6 +227,12 @@ class Poll():
     def register_message(self, message: int):
         self.active_messages.add(message)
 
+    def unregister_message(self, message: int):
+        self.active_messages.remove(message)
+
+    def unregister_messages(self):
+        self.active_messages = set()
+
     def __str__(self):
         return 'Poll(title={0.title}, active={0.active}, ordinal={0.ordinal}, votes={0.entries})'\
                .format(self)

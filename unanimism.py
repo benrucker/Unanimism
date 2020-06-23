@@ -48,6 +48,7 @@ if __name__ == '__main__':
     @commands.is_owner()
     @bot.command(hidden=True)
     async def reload(ctx):
+        await bot.get_cog('Polls').cleanup()
         await ctx.send('Reloading ' + ', '.join([(str(x)) for x in bot.extensions]))
         for ext in bot.extensions:
             bot.reload_extension(ext)
