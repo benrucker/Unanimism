@@ -49,7 +49,14 @@ class EntryVotes():
     def remove_vote(self, degree: int, voter: Voter):
         self.votes[degree].remove(voter)
 
+    def remove_votes(self):
+        """Reinitialize the votes dict to reset votes."""
+        self.votes = dict()
+        for i in range(1, self.ordinance+1):
+            self.votes[i] = set()
+
     def remove_votes_from(self, voter):
+        """Remove votes from a specific voter."""
         for entry_votes in self.votes.values():
             if voter in entry_votes:
                 print(f'Removing vote from user {voter}')
@@ -211,6 +218,10 @@ class Poll():
     def remove_votes_from_user(self, id: int):
         for entry in self.entries.values():
             entry.remove_votes_from(Voter(id, None))
+
+    def remove_all_votes(self):
+        for entry in self.entries.values():
+            entry.remove_votes()
 
     def register_message(self, message: int):
         self.active_messages.add(message)
