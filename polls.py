@@ -386,3 +386,14 @@ class Polls(commands.Cog):
     @task_save_polls.before_loop
     async def task_before_save_polls(self):
         await self.bot.wait_until_ready()
+
+    def __str__(self):
+        out = ''
+        for id in self.polls.keys():
+            out += f'{id}:\n'
+            for poll in self.polls[id]:
+                out += f'\t{poll}\n'
+        return out
+
+    def __repr__(self):
+        return self.__str__()
