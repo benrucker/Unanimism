@@ -5,8 +5,8 @@ from importlib import reload
 import os
 import pickle
 import poll
-from poll import Poll, Voter
-from typing import Dict, Optional, Set, Union
+from poll import Poll, PollEnums, Voter
+from typing import Dict, List, Optional, Set, Union
 
 ALPHAMOJI = ['regional_indicator_a', 'regional_indicator_b', 'regional_indicator_c', 'regional_indicator_d', 'regional_indicator_e', 'regional_indicator_f', 'regional_indicator_g', 'regional_indicator_h', 'regional_indicator_i', 'regional_indicator_j', 'regional_indicator_k', 'regional_indicator_l', 'regional_indicator_m', 'regional_indicator_n', 'regional_indicator_o', 'regional_indicator_p', 'regional_indicator_q', 'regional_indicator_r', 'regional_indicator_s', 'regional_indicator_t', 'regional_indicator_u', 'regional_indicator_v', 'regional_indicator_w', 'regional_indicator_x', 'regional_indicator_y', 'regional_indicator_z']
 ALPHAMOJIRED = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z']
@@ -224,6 +224,34 @@ class Polls(commands.Cog):
 
     def listen_to(self, msg: discord.Message, poll: Poll):
         poll.register_message(msg.id)
+
+    async def respond_to_vote(self, return_code: PollEnums, user, poll: Poll, entry: str, degree: int):
+        if return_code == PollEnums.SUCCESS:
+            await user.send(f'Your vote for **{entry}** has been counted!')
+        elif return_code == PollEnums.VOTE_ALREADY_PRESENT:
+            await user.send(f'Error: You\'ve already voted for **{degree}-{entry}**. '+
+                            f'Say `u.myvotes {poll.title}` in the channel to see what you voted for!')
+        elif return_code == PollEnums.MAX_VOTES_HIT:
+            await user.send(f'You\'ve hit the max number of votes on the poll **{poll.title}**. '+
+                            f'Say `u.myvotes {poll.title}` in the channel to see what you voted for or '+
+                            f'`u.resetvotes {poll.title}` to reset your votes so you can vote again.')
+        elif return_code == PollEnums.POLL_NOT_ACTIVE:
+            await user.send(f'Error: the poll **{poll.title}** is not accepting votes right now. '+
+                            f'Send `u.activate {poll.title}` in the channel to reopen voting.')
+
+
+    async def process_vote(self, reaction, user, poll):
+        msg = reaction.message
+        channel = msg.channel
+        entry = self.entry_from(msg)
+        voter = self.voter_from(user)
+        degree = self.degree_from(reaction)
+        result = poll.add_vote(entry,
+                               voter,
+                               degree)
+        await self.respond_to_vote(result, user, poll, entry, degree)
+        await asyncio.sleep(1)
+        await reaction.remove(user)
 
     @commands.Cog.listener()
     async def on_reaction_add(self, reaction, user):
