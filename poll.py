@@ -1,5 +1,12 @@
+from enum import Enum, auto
 from math import ceil
-from typing import Dict, Set, Optional, Union
+from typing import Dict, List, Optional, Set, Tuple, Union
+
+class PollEnums(Enum):
+    SUCCESS = auto()
+    VOTE_ALREADY_PRESENT = auto()
+    MAX_VOTES_HIT = auto()
+    POLL_NOT_ACTIVE = auto()
 
 class Voter():
     def __init__(self, id: int, name: Optional[str]):
@@ -34,7 +41,10 @@ class EntryVotes():
         self.ordinance = ordinance
 
     def add_vote(self, degree: int, voter: Voter):
+        if voter in self.votes[degree]:
+            return PollEnums.VOTE_ALREADY_PRESENT
         self.votes[degree].add(voter)
+        return PollEnums.SUCCESS
 
     def remove_vote(self, degree: int, voter: Voter):
         self.votes[degree].remove(voter)
@@ -48,6 +58,12 @@ class EntryVotes():
     def change_vote(self, old_deg: int, new_deg: int, voter: Voter):
         self.remove_vote(old_deg, voter)
         self.add_vote(new_deg, voter)
+
+    def num_votes_by(self, voter: Voter, degree: int):
+        total = 0
+        if voter in self.votes[degree]:
+            total += 1
+        return total
 
     def __str__(self) -> str:
         return str(self.votes)
@@ -103,17 +119,22 @@ class EntryVotes():
 class Poll():
     """A poll object!"""
 
-    def __init__(self, title, guild_id, channel_id, owner_id, num_votes=1, ordinal=False, protected=False):
+    def __init__(self, title, guild_id, channel_id, owner_id,
+                 active=False, num_votes=1, can_vote_for_half=True, ordinal=False,
+                 protected=False, active_messages: Optional[set]=None,
+                 entries: Optional[Dict[str, EntryVotes]]=None):
         self.title = title
         self.guild_id = guild_id
         self.channel_id = channel_id
         self.owner_id = owner_id
         self.protected = protected
-        self.active = False
+        self.active = active
+        self.can_vote_for_half = can_vote_for_half
         self.num_votes_per_person = num_votes
+        self.set_num_votes_per_person(num=num_votes, half=can_vote_for_half)
         self.ordinal = ordinal
-        self.entries = dict()  # str, EntryVotes
-        self.active_messages = set()
+        self.entries: Dict[str, EntryVotes] = dict() if not entries else entries
+        self.active_messages = set() if not active_messages else active_messages
 
     def open_voting(self):
         self.active = True
@@ -121,21 +142,42 @@ class Poll():
     def close_voting(self):
         self.active = False
 
-    def add_vote(self, entry: str, voter: Voter, degree: int):
+    def add_vote(self, entry: str, voter: Voter, degree: int) -> PollEnums:
         if not self.active:
-            raise RuntimeError(f'Poll {self.title} is not active.')
-        self.entries[entry].add_vote(degree, voter)
+            print(f'Poll {self.title} is not active.')
+            return PollEnums.POLL_NOT_ACTIVE
+        elif voter in self.entries[entry].votes[degree]:
+            print('user has already voted for that entry and degree')
+            return PollEnums.VOTE_ALREADY_PRESENT
+        elif self.num_votes_by(voter, degree) >= self.num_votes_per_person:
+            print(f'Voter {voter.name} already has the max number '+
+                  f'of votes of degree {degree} on {self.title}')
+            return PollEnums.MAX_VOTES_HIT
+        return self.entries[entry].add_vote(degree, voter)
 
     def set_num_votes_per_person(self, num: int =1, half: bool =False):
         if half:
             self.num_votes_per_person = ceil(len(self.entries) / 2)
         self.num_votes_per_person = num
 
+    def update_num_votes(self):
+        self.set_num_votes_per_person(num=self.num_votes_per_person,
+                                      half=self.can_vote_for_half)
+
+    def num_votes_by(self, voter, degree):
+        total = 0
+        for entry in self.entries:
+            total += self.entries[entry].num_votes_by(voter, degree)
+        return total
+
     def add_entry(self, entry):
         if entry not in self.entries.keys():
             self.entries[entry] = EntryVotes(None)
+            self.update_num_votes()
+        else:
+            print(f'{entry} already in poll')
 
-    def add_entries(self, _entries):
+    def add_entries(self, _entries: List[str]):
         for entry in _entries:
             self.add_entry(entry)
 
