@@ -72,6 +72,19 @@ class EntryVotes():
             total += 1
         return total
 
+    def set_ordinance(self, new: int):
+        diff = self.ordinance - new
+        if self.ordinance == new:
+            return
+        elif self.ordinance < new:
+            # add new sets for votes
+            for i in range(self.ordinance+1, new+1):
+                self.votes[i] = set()
+        else:  # self.ordinance > new
+            for i in range(new+1, self.ordinance+1):
+                del self.votes[i]
+        self.ordinance = new
+
     def __str__(self) -> str:
         return str(self.votes)
 
@@ -163,10 +176,17 @@ class Poll():
             return PollEnums.MAX_VOTES_HIT
         return self.entries[entry].add_vote(degree, voter)
 
+    def set_ordinal(self, ordinal: bool):
+        self.ordinal = ordinal
+        for title, entry in self.entries.items():
+            entry.set_ordinance(3 if ordinal else 1)
+
     def set_num_votes_per_person(self, num: int =1, half: bool =False):
         if half:
             self.num_votes_per_person = ceil(len(self.entries) / 2)
-        self.num_votes_per_person = num
+        else:
+            self.num_votes_per_person = num
+        print('set num votes to', self.num_votes_per_person)
 
     def update_num_votes(self):
         self.set_num_votes_per_person(num=self.num_votes_per_person,
