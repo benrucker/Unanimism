@@ -320,7 +320,8 @@ class Polls(commands.Cog):
         if entries:
             _poll.add_entries(entries.split(', '))
         else:
-            self.get_entries_from_user(ctx, _poll)
+            _entries = await self.get_entries_from_user(ctx)
+            _poll.add_entries(_entries)
         await ctx.send(f'Entries added! `u.show {_poll.title}` to see them!')
 
     @commands.command(aliases=[], hidden=True)
