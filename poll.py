@@ -160,7 +160,11 @@ class Poll():
                 del self.entries[e]
 
     def remove_entry(self, entry: str):
-        del self.entries[entry]
+        try:
+            del self.entries[entry]
+            self.update_num_votes()
+        except:
+            print(f'{entry} not in entries')
 
     def remove_votes_from_user(self, id: int):
         for entry in self.entries.values():
