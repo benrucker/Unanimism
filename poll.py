@@ -179,7 +179,7 @@ class Poll():
 
     def add_entry(self, entry):
         if entry not in self.entries.keys():
-            self.entries[entry] = EntryVotes(None)
+            self.entries[entry] = EntryVotes(None, ordinance=3 if self.ordinal else 1)
             self.update_num_votes()
         else:
             print(f'{entry} already in poll')
