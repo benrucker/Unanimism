@@ -129,17 +129,16 @@ class Polls(commands.Cog):
     async def send_poll_results_embed(self, poll: Poll, ctx):
         await ctx.send(embed=self.make_unordered_poll_embed(poll, ctx))
 
-    async def get_entries_from_user(self, ctx, poll: Poll, new_poll: bool =False):
-        await ctx.send(('Poll added! ' if new_poll else '')+
-                       'Send some entries to be voted on:\n'+
-                       'e.g. `entry one, entry two, etc`')
+    async def get_entries_from_user(self, ctx, text: str='Poll added! Send some entries to be voted on:') -> List[str]:
+        await ctx.send(text+'\ne.g. `entry one, entry two, etc`')
 
         def check(msg):
             return msg.author == ctx.author and msg.channel == ctx.channel
 
         r = await self.bot.wait_for('message', check=check)
-        entries = r.content.split(', ')
-        poll.add_entries(entries)
+        entries: list() = r.content.split(', ')
+        return entries
+        # poll.add_entries(entries)
 
     async def get_config_from_user(self, ctx, poll: Poll, new_poll=False):
         # protected, number of choices per vote, max votes per poll
