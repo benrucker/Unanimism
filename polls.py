@@ -278,7 +278,11 @@ class Polls(commands.Cog):
         return Voter(user.id, user.display_name)
 
     def degree_from(self, reaction: discord.Reaction) -> int:
-        deg = NUMBERMOJI.index(reaction.emoji)
+        if reaction.emoji in NUMBERMOJI:
+            deg = NUMBERMOJI.index(reaction.emoji)
+        elif reaction.emoji == '☑️':
+            deg = 1
+        else: raise KeyError('Invalid voting emoji')
         print(f'Got degree {deg} from {str(reaction)}')
         return deg
 
