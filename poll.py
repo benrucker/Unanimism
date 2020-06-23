@@ -143,7 +143,7 @@ class Poll():
         """Combines the votes of two entries a and b into a."""
         if a not in self.entries or b not in self.entries:
             raise KeyError(f'{a if a not in self.entries else b} not in entries')
-        self.entries[a] = a + b
+        self.entries[a] = self.entries[a] + self.entries[b]
         del self.entries[b]
 
     def combine_n_entries(self, *entries):
@@ -154,9 +154,9 @@ class Poll():
             if e not in self.entries.keys():
                 continue
             if not base:
-                e = base
+                base = e
             else:
-                self.entries[base] += e
+                self.entries[base] += self.entries[e]
                 del self.entries[e]
 
     def remove_entry(self, entry: str):
