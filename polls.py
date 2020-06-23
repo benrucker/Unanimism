@@ -212,11 +212,26 @@ class Polls(commands.Cog):
 
     @commands.command(aliases=[])
     async def end(self, ctx, title: str):
+        """End voting on a poll."""
         _p = self.get_poll(ctx.channel.id, title)
         if _p.protected and ctx.author.id != _p.owner_id:
-            ctx.send('Sorry mate, this poll can only be closed by the owner!')
+            await ctx.send('Sorry mate, this poll can only be closed by the owner!')
         else:
             self.deactivate(_p)
+            await ctx.send('Poll has been deactivated!')
+
+    def delete_poll(self, poll: Poll):
+        """Deletes a poll. Does not check membership."""
+        self.polls[poll.channel_id].remove(poll)
+
+    @commands.command(aliases=[])
+    async def removepollforever(self, ctx, title: str):
+        """Remove a poll from the channel. Warning: permanent!"""
+        _p = self.get_poll(ctx.channel.id, title)
+        if _p.owner_id != ctx.author.id or \
+            discord.manage_messages not in ctx.author.permissions_in(ctx.channel):
+            self.delete_poll(_p)
+            await ctx.send(f'The {_p.title} poll is gone. Forever!')
 
     def get_poll(self, channel_id: int, title: str) -> Poll:
         for poll in self.polls[channel_id]:
