@@ -282,13 +282,13 @@ class Polls(commands.Cog):
         print(f'Got degree {deg} from {str(reaction)}')
         return deg
 
-    @commands.command(aliases=['results'])
-    async def show(self, ctx, title: str, here: Optional[str]):
+    @commands.command(aliases=[])
+    async def results(self, ctx, title, here: Optional[str]):
         """See the results of a poll!"""
         _p = self.get_poll(ctx.channel.id, title)
         if _p.protected:
             if ctx.author.id == _p.owner_id:
-                if here.lower() == 'here':
+                if here and here.lower() == 'here':
                     dest = ctx
                 else:
                     dest = ctx.author
@@ -297,10 +297,13 @@ class Polls(commands.Cog):
                 return
         else:
             dest = ctx
-        if here == '-d':
-            await self.send_poll(_p, dest)
-        else:
-            await self.send_poll_embed(_p, dest)
+        await self.send_poll_results_embed(_p, dest)
+
+    @commands.command(aliases=[])
+    async def show(self, ctx, title: str):
+        """See the contents of a poll!"""
+        _p = self.get_poll(ctx.channel.id, title)
+        await self.send_unordered_poll_embed(_p, ctx)
 
     @commands.command(name='list', aliases=[])
     async def _list(self, ctx):
