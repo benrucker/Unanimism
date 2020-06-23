@@ -348,6 +348,13 @@ class Polls(commands.Cog):
 
     @commands.is_owner()
     @commands.command(aliases=[], hidden=True)
+    async def clearchannel(self, ctx):
+        print(self.polls[ctx.channel.id])
+        self.polls[ctx.channel.id] = set()
+        print(self.polls[ctx.channel.id])
+
+    @commands.is_owner()
+    @commands.command(aliases=[], hidden=True)
     async def resetpolls(self, ctx):
         self.polls: Dict[int, Set[Poll]] = dict()
 
