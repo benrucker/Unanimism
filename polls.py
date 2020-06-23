@@ -106,6 +106,16 @@ class Polls(commands.Cog):
         self.set_author_footer(embed, poll)
         return embed
 
+    def make_unordered_poll_embed(self, poll, ctx):
+        embed = discord.Embed(title=f'Poll: **{poll.title}**',
+                    description=f'Voting is **not** enabled. `u.begin {poll.title}` to open it up!',
+                    color=0x5783ae)
+        embed.add_field(name='Entries',
+                        value='\n:small_blue_diamond: '.join(poll.entries.keys()),
+                        inline=False)
+        self.set_author_footer(embed, poll)
+        return embed
+
     def make_poll_embed(self, poll: Poll, ctx):
         # divide into multiple methods, probably
         if poll.active:
@@ -115,6 +125,9 @@ class Polls(commands.Cog):
 
     async def send_poll_embed(self, poll: Poll, ctx):
         await ctx.send(embed=self.make_poll_embed(poll, ctx))
+
+    async def send_poll_results_embed(self, poll: Poll, ctx):
+        await ctx.send(embed=self.make_unordered_poll_embed(poll, ctx))
 
     async def get_entries_from_user(self, ctx, poll: Poll, new_poll: bool =False):
         await ctx.send(('Poll added! ' if new_poll else '')+
