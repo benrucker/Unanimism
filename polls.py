@@ -435,7 +435,7 @@ class Polls(commands.Cog):
     async def resetallvotesfor(self, ctx, poll: str):
         p = self.get_poll(ctx.channel.id, poll)
         p.remove_all_votes()
-        await ctx.send(f'Votes for **{poll.title}** have been reset.')
+        await ctx.send(f'Votes for **{p.title}** have been reset.')
 
     @commands.command(aliases=[])
     async def myvotes(self, ctx, poll: str):
