@@ -12,6 +12,9 @@ class Voter():
     def __str__(self):
         return str(self.name) + ':' + str(self.id)
 
+    def __repr__(self):
+        return self.__str__()
+
     def __hash__(self):
         return self.id
 
@@ -49,6 +52,9 @@ class EntryVotes():
     def __str__(self) -> str:
         return str(self.votes)
 
+    def __repr__(self):
+        return self.__str__()
+
     def __float__(self) -> float:
         out = 0
         for i, v in enumerate(self.votes.values()):
@@ -64,7 +70,7 @@ class EntryVotes():
         out = dict()  # list(set(Voter))
         for c in range(1, max(len(self.votes), len(other.votes))):
             if c < len(self.votes) and c < len(other.votes):
-                out[c] = self.votes[c] + other.votes[c]
+                out[c] = self.votes[c].union(other.votes[c])
             elif c < len(self.votes):
                 out[c] = self.votes[c]
             else:
@@ -172,3 +178,6 @@ class Poll():
 
     def __hash__(self):
         return hash(self.__dict__.values())
+
+    def __repr__(self):
+        return self.__str__()
