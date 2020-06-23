@@ -66,11 +66,10 @@ class Polls(commands.Cog):
 
     async def send_poll(self, poll: Poll, ctx):
         await ctx.send('```' + str(poll) + '```')
-        # await self.send_poll_embed(poll, ctx)
 
     def set_author_footer(self, embed, poll: Poll):
         poll_owner = self.bot.get_user(poll.owner_id)
-        embed.set_footer(text=f'Started by {poll_owner.display_name}',
+        embed.set_footer(text=f'Poll started by {poll_owner.display_name}',
                          icon_url=poll_owner.avatar_url
                          )
 
@@ -79,11 +78,21 @@ class Polls(commands.Cog):
                 value=f'{NUMBERMOJI[num]} {entry[0]}',
                 inline=False)
 
+    def active_embed_args(self, poll):
+        return dict(title=f'Poll: **{poll.title}**',
+                    description=f'Voting is enabled! `u.voteon {poll.title}` to vote, or `u.addto {poll.title}` to add entries!',
+                    color=0x5783ae
+                    )
+
+    def inactive_embed_args(self, poll):
+        return dict(title=f'Poll: **{poll.title}**',
+                    description=f'Voting is **not** enabled. `u.begin {poll.title}` to open it up, or `u.addto {poll.title}` to add entries!',
+                    color=0x5783ae
+                    )
+
     def make_active_poll_embed(self, poll, ctx):
         sorted_entries = sorted(poll.entries.items(), key=lambda x: x[1], reverse=True)
-        embed = discord.Embed(title=f'Poll: **{poll.title}**',
-                            description=f'Voting is enabled! `u.voteon {poll.title}` to vote, or `u.addto {poll.title}` to add entries!',
-                            color=0x5783ae)
+        embed = discord.Embed(**self.active_embed_args(poll))
         for i, entry in enumerate(sorted_entries):
             if i > len(NUMBERMOJI):
                 embed.add_field(name='Runners up:',
@@ -96,9 +105,7 @@ class Polls(commands.Cog):
 
     def make_inactive_poll_embed(self, poll, ctx):
         sorted_entries = sorted(poll.entries.items(), key=lambda x: x[1], reverse=True)
-        embed = discord.Embed(title=f'Poll: **{poll.title}**',
-                            description=f'Voting is **not** enabled. `u.begin {poll.title}` to open it up!',
-                            color=0x5783ae)
+        embed = discord.Embed(**self.inactive_embed_args(poll))
         for i, entry in enumerate(sorted_entries):
             if i > len(NUMBERMOJI):
                 break  # add ellipsis equivalent
