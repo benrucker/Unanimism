@@ -206,8 +206,11 @@ class Polls(commands.Cog):
         for title in poll.entries.keys():
             # msg = await ctx.send(':' + ALPHAMOJI[i] + ': ' + title)
             msg = await ctx.send('**' + title + '**')
-            for j in range(1,4):
-                reaction_calls.append(msg.add_reaction(NUMBERMOJI[j]))
+            if poll.ordinal:
+                for j in range(1,4):
+                    reaction_calls.append(msg.add_reaction(NUMBERMOJI[j]))
+            else:
+                reaction_calls.append(msg.add_reaction('☑️'))
             self.listen_to(msg, poll)
             i += 1
         await asyncio.gather(*reaction_calls)
