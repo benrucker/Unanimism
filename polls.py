@@ -246,7 +246,7 @@ class Polls(commands.Cog):
 
     @commands.command(aliases=['vote'])
     async def voteon(self, ctx, title: str):
-        """Send a poll to be voted on!"""
+        """Sends a poll to be voted on!"""
         poll = self.get_poll(ctx.channel.id, title)
         if not poll.active:
             await ctx.send(f'Voting on {poll.title} has not begun yet. If you wanna get \'er movin\', '+
