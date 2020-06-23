@@ -324,10 +324,15 @@ class Polls(commands.Cog):
         await ctx.send(f'Entries added! `u.show {_poll.title}` to see them!')
 
     @commands.command(aliases=[], hidden=True)
-    async def combine(self, ctx, title: str, *, entries: str):
+    async def combine(self, ctx, title: str):
         """Combine entries and their votes into one entry."""
-        # needs a usability and accuracy rework
-        self.get_poll(ctx.channel.id, title).combine_entries(*entries.split(', '))
+        poll = self.get_poll(ctx.channel.id, title)
+        entries = await self.get_entries_from_user(ctx, text='Alright! Send the entries you want to combine:')
+        poll.combine_n_entries(*entries)
+        if len(entries) == 2:
+            await ctx.send(f'**{entries[1]}** was combined with **{entries[0]}**.')
+        else:
+            await ctx.send(f'**{", ".join(entries[1:])}** were combined with **{entries[0]}**')
 
     @commands.command(aliases=['rv'])
     async def resetvotes(self, ctx, poll: str):
