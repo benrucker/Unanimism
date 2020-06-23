@@ -158,11 +158,9 @@ class Polls(commands.Cog):
     async def poll(self, ctx, title: str):
         """Create a poll with a one-word title!"""
         poll = Poll(title, ctx.guild.id, ctx.channel.id, ctx.author.id)
-        # else:
-        #     await ctx.send('Poll added')
-        # await self.send_poll(poll, ctx)
         await self.get_config_from_user(ctx, poll, new_poll=True)
-        await self.get_entries_from_user(ctx, poll, new_poll=True)
+        entries = await self.get_entries_from_user(ctx)
+        poll.add_entries(entries)
         if not self.add_poll(poll):
             await ctx.send('Couldn\'t create poll')
             return
