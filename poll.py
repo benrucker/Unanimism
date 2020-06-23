@@ -199,7 +199,9 @@ class Poll():
         self.set_num_votes_per_person(num=self.num_votes_per_person,
                                       half=self.can_vote_for_half)
 
-    def num_votes_by(self, voter, degree):
+    def num_votes_by(self, voter: Union[int, Voter], degree):
+        if type(voter) is int:
+            voter = Voter(voter, None)
         total = 0
         for entry in self.entries:
             total += self.entries[entry].num_votes_by(voter, degree)
