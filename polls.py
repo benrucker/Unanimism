@@ -42,9 +42,14 @@ class Polls(commands.Cog):
             print(f'saved polls to {filename}')
 
     def cog_unload(self):
+        # cleanup cannot go here due to it being a coroutine
         self.task_save_polls.cancel()
         self.save_polls('polls.unm')
         reload(poll)
+
+    async def cleanup(self):
+        # await self.remove_poll_reactions()
+        await self.remove_votable_polls()
 
     async def remove_poll_reactions(self):
         for chanid, _polls in self.polls.items():
@@ -68,7 +73,6 @@ class Polls(commands.Cog):
                     return message.id in _p.active_messages
                 await chan.purge(check=check)
                 _p.unregister_messages()
-
 
     def add_poll(self, poll):
         channel = poll.channel_id
@@ -465,12 +469,9 @@ class Polls(commands.Cog):
     @commands.is_owner()
     @commands.command(aliases=['die'])
     async def しね(self, ctx):
+        await self.cleanup()
         self.bot.unload_extension('polls')
         await self.bot.close()
-
-    async def cleanup(self):
-        # await self.remove_poll_reactions()
-        await self.remove_votable_polls()
 
     def verify_saved_polls(self, filename):
         dummy_polls = Polls(None, filename, False)
