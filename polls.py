@@ -203,7 +203,7 @@ class Polls(commands.Cog):
 
     def deactivate(self, poll):
         poll.active = False
-        del self.polls[poll]
+        # del self.polls[poll]
 
     @commands.command(aliases=[])
     async def begin(self, ctx, title: str):
