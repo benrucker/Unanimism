@@ -267,6 +267,7 @@ class Poll():
                .format(self)
 
     def __eq__(self, other):
+        print('\n\n',self.__dict__,'\n\n',other.__dict__,'\n')
         return self.__dict__ == other.__dict__
 
     def __hash__(self):
