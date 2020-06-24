@@ -287,7 +287,7 @@ class Polls(commands.Cog):
         elif return_code == PollEnums.MAX_VOTES_HIT:
             await user.send(f'You\'ve hit the max number of votes on the poll **{poll.title}**. '+
                             f'Say `u.myvotes {poll.title}` in the channel to see what you voted for or '+
-                            f'`u.resetvotes {poll.title}` to reset your votes so you can vote again.')
+                            f'`u.resetmyvotes {poll.title}` to reset your votes so you can vote again.')
         elif return_code == PollEnums.POLL_NOT_ACTIVE:
             await user.send(f'Error: the poll **{poll.title}** is not accepting votes right now. '+
                             f'Send `u.activate {poll.title}` in the channel to reopen voting.')
