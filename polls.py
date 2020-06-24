@@ -211,7 +211,7 @@ class Polls(commands.Cog):
         for poll in self.polls[ctx.channel.id]:
             if poll.title == title:
                 self.activate(poll)
-                await ctx.send(f'Poll activated! `u.show {poll.title}` to see the results after voting!')
+                await ctx.send(f'Poll activated! `u.results {poll.title}` to see the results after voting!')
                 await self.send_votable(ctx, poll)
 
     @commands.command(aliases=[])
