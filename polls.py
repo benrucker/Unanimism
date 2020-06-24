@@ -6,6 +6,7 @@ import os
 import pickle
 import poll
 from poll import Poll, PollEnums, Voter
+import random
 from typing import Dict, List, Optional, Set, Union
 
 ALPHAMOJI = ['regional_indicator_a', 'regional_indicator_b', 'regional_indicator_c', 'regional_indicator_d', 'regional_indicator_e', 'regional_indicator_f', 'regional_indicator_g', 'regional_indicator_h', 'regional_indicator_i', 'regional_indicator_j', 'regional_indicator_k', 'regional_indicator_l', 'regional_indicator_m', 'regional_indicator_n', 'regional_indicator_o', 'regional_indicator_p', 'regional_indicator_q', 'regional_indicator_r', 'regional_indicator_s', 'regional_indicator_t', 'regional_indicator_u', 'regional_indicator_v', 'regional_indicator_w', 'regional_indicator_x', 'regional_indicator_y', 'regional_indicator_z']
@@ -176,15 +177,23 @@ class Polls(commands.Cog):
     async def get_config_from_user(self, ctx, poll: Poll, new_poll=False):
         # protected, number of choices per vote, max votes per poll
         msgout = await ctx.send(
-            'Thanks for making a poll! Do you want this poll to be private? **(yeah/nah)**\n'+
+            f'Thanks for making a poll! Do you want this poll to be private? **({random.choice(YES)}/{random.choice(NO)})**\n'+
             'This means **only you** can see the results, but everyone can still vote.'
         )
         def check(msg):
             return msg.author.id == ctx.author.id and msg.channel == ctx.channel
         r = await self.bot.wait_for('message', check=check)
-        if r.content.lower() in YES:
-            poll.protected = True
-            print(f'set poll {poll.title} to private')
+        while True:
+            if r.content.lower() in YES:
+                poll.protected = True
+                break
+            elif r.content.lower() in NO:
+                poll.protected = False
+                break
+            else:
+                await ctx.send(f'I didn\'t quite catch that. Respond with **{random.choice(YES)}** or **{random.choice(NO)}**.')
+                r = await self.bot.wait_for('message', check=check)
+        print(f'set poll {poll.title} to protected={poll.protected}')
 
     @commands.command(aliases=['p'])
     async def poll(self, ctx, title: str):
