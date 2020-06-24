@@ -450,7 +450,9 @@ class Polls(commands.Cog):
             for pos in entryvotes.votes.keys():
                 if v in entryvotes.votes[pos]:
                     out += f'{str(pos)+". " if p.ordinal else ""}{entry}\n'
-        out += f'Send `u.removevotes {p.title}` back in the other channel to reset your votes!'
+        remaining = p.num_votes_per_person - p.num_votes_by(v, 1)
+        out += f'You have {remaining} vote{"" if remaining == 1 else "s"} remaining! '
+        out += f'Send `u.resetmyvotes {p.title}` back in the other channel to reset your votes!'
         await ctx.author.send(out)
 
     @commands.is_owner()
