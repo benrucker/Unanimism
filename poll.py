@@ -8,6 +8,7 @@ class PollEnums(Enum):
     MAX_VOTES_HIT = auto()
     POLL_NOT_ACTIVE = auto()
 
+
 class Voter():
     def __init__(self, id: int, name: Optional[str]):
         self.id = id
@@ -17,10 +18,10 @@ class Voter():
         return self.id == other.id
 
     def __str__(self):
-        return str(self.name) + ':' + str(self.id)
+        return str(self.name)
 
     def __repr__(self):
-        return self.__str__()
+        return str(self.name) + ':' + str(self.id)
 
     def __hash__(self):
         return self.id
