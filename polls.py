@@ -232,8 +232,7 @@ class Polls(commands.Cog):
     async def removepollforever(self, ctx, title: str):
         """Remove a poll from the channel. Warning: permanent!"""
         _p = self.get_poll(ctx.channel.id, title)
-        if _p.owner_id != ctx.author.id or \
-            discord.manage_messages not in ctx.author.permissions_in(ctx.channel):
+        if _p.owner_id == ctx.author.id:
             self.delete_poll(_p)
             await ctx.send(f'The {_p.title} poll is gone. Forever!')
 
