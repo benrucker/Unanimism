@@ -170,7 +170,7 @@ class Polls(commands.Cog):
             return msg.author == ctx.author and msg.channel == ctx.channel
 
         r = await self.bot.wait_for('message', check=check)
-        entries: list() = r.content.split(', ')
+        entries: list = r.content.split(', ')
         return entries
         # poll.add_entries(entries)
 
