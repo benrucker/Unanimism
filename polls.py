@@ -464,6 +464,24 @@ class Polls(commands.Cog):
         out += f'Send `u.resetmyvotes {p.title}` back in the other channel to reset your votes!'
         await ctx.author.send(out)
 
+    @commands.command()
+    async def allvotes(self, ctx, poll: str):
+        """WIP: see who voted for what on a poll. Warning: bad"""
+        p = self.get_poll(ctx.channel.id, poll)
+        if p.protected and ctx.author.id not in [p.owner_id, self.bot.owner_id]:
+            await ctx.send('This poll is private, so only the owner can see the results!')
+            return
+        out = ''
+        out2 = None
+        for entry in p.entries.items():
+            out += str(entry) + '\n'
+        if len(out) > 2000:
+            out2 = out[2000:]
+            out = out[:2000]
+        await ctx.author.send(out)
+        if out2:
+            await ctx.author.send(out2)
+
     @commands.is_owner()
     @commands.command(aliases=[], hidden=True)
     async def clearchannel(self, ctx):
