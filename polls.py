@@ -497,6 +497,7 @@ class Polls(commands.Cog):
     @commands.is_owner()
     @commands.command(aliases=['die'])
     async def しね(self, ctx):
+        """Frame 1 OHKO"""
         await self.cleanup()
         self.bot.unload_extension('polls')
         await self.bot.close()
