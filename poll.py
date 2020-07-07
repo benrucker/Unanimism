@@ -191,7 +191,8 @@ class Poll():
 
     def set_num_votes_per_person(self, num: int =1, half: bool =False):
         if half:
-            self.num_votes_per_person = ceil(len(self.entries) / 2)
+            # half, rounded down, min of 1
+            self.num_votes_per_person = max(len(self.entries) // 2, 1)
         else:
             self.num_votes_per_person = num
         print('set num votes to', self.num_votes_per_person)
