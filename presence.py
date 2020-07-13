@@ -1,4 +1,3 @@
-import asyncio
 from itertools import cycle
 import discord
 from discord.enums import ActivityType
@@ -8,7 +7,10 @@ PRESENCES = [(ActivityType.watching,  'for u.help or u.poll'),
              (ActivityType.playing,   'Democracy'),
              (ActivityType.watching,  'for u.help or u.poll'),
              (ActivityType.listening, 'your complaints'),
+             (ActivityType.watching,  'for u.help or u.poll'),
+             (ActivityType.watching,  'the votes roll in!'),
             ]
+
 
 def setup(bot):
     bot.add_cog(Presence(bot))
