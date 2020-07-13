@@ -198,10 +198,11 @@ class Polls(commands.Cog):
     @commands.command(aliases=['p'])
     async def poll(self, ctx, title: str):
         """Create a poll with a one-word title!"""
+        # add check for poll with existing name
         poll = Poll(title, ctx.guild.id, ctx.channel.id, ctx.author.id)
         await self.get_config_from_user(ctx, poll, new_poll=True)
         entries = await self.get_entries_from_user(ctx)
-        poll.add_entries(entries)
+        poll.add_entries(entries[:poll.max_entries])  # TODO add feedback for max entries
         if not self.add_poll(poll):
             await ctx.send('Couldn\'t create poll')
             return
@@ -383,13 +384,21 @@ class Polls(commands.Cog):
         """Add some entries to a poll!"""
         _poll = self.get_poll(ctx.channel.id, title)
         if entries:
-            _poll.add_entries(entries.split(', '))
+            _entries = entries.split(', ')
         else:
             _entries = await self.get_entries_from_user(ctx)
+        cutoff = _poll.max_entries - len(_poll.entries)
+        if cutoff == 0:
+            out = f'**{_poll.title}** already has the max number of entries!'
+        else:
+            _entries = _entries[:cutoff]
             _poll.add_entries(_entries)
-        await ctx.send(f'Entries added! `u.show {_poll.title}` to see them!')
+            out = f'Entries added! `u.show {_poll.title}` to see them!'
+        if cutoff > 0:
+            out += f' ({cutoff} entries were not added due to hitting the max of {_poll.max_entries})'
+        await ctx.send(out)
 
-    @commands.command(aliases=[], hidden=False)
+    @commands.command(aliases=[], hidden=True)
     async def combine(self, ctx, title: str):
         """Combine entries and their votes into one entry."""
         poll = self.get_poll(ctx.channel.id, title)
@@ -431,6 +440,10 @@ class Polls(commands.Cog):
                 v = bool(pair[1])
                 p.protected = v
                 out += f'set protected to {v}\n'
+            if pair[0] == 'max_entries':
+                v = int(pair[1])
+                p.max_entries = v
+                out += f'set max entries to {v}\n'
         if out == '':
             out = 'No changes made'
         else:

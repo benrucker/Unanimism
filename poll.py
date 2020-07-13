@@ -149,8 +149,8 @@ class Poll():
 
     def __init__(self, title, guild_id, channel_id, owner_id,
                  active=False, num_votes=1, can_vote_for_half=True, ordinal=False,
-                 protected=False, active_messages: Optional[set]=None,
-                 entries: Optional[Dict[str, EntryVotes]]=None):
+                 protected=False, max_entries=8, active_messages: Optional[set] = None,
+                 entries: Optional[Dict[str, EntryVotes]] = None):
         self.title = title
         self.guild_id = guild_id
         self.channel_id = channel_id
@@ -160,8 +160,9 @@ class Poll():
         self.can_vote_for_half = can_vote_for_half
         self.num_votes_per_person = num_votes
         self.ordinal = ordinal
-        self.entries: Dict[str, EntryVotes] = dict() if not entries else entries
+        self.max_entries = max_entries
         self.active_messages = set() if not active_messages else active_messages
+        self.entries: Dict[str, EntryVotes] = dict() if not entries else entries
         # init self.num_votes_per_person
         self.set_num_votes_per_person(num=num_votes, half=can_vote_for_half)
 
