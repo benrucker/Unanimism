@@ -1,5 +1,5 @@
-import asyncio
-import discord
+import asyncio # noqa
+import discord # noqa
 from discord.ext import commands
 import time
 
