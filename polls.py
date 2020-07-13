@@ -15,9 +15,11 @@ NUMBERMOJI = ['0️⃣', '1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', 
 YES = ['yes','yeah','yep','yeppers','of course','ye','y','ya','yah', 'yea', 'yush']
 NO  = ['no','n','nope','nay','nada', 'nah', 'na']
 
+
 def setup(bot):
     print('Loading Polls Extension')
     bot.add_cog(Polls(bot, 'polls.unm', True))
+
 
 class Polls(commands.Cog):
     """Cog to interface polls with discord."""
@@ -66,7 +68,6 @@ class Polls(commands.Cog):
                 _p.unregister_messages()
 
     async def remove_votable_polls(self):
-        all_msg = list()
         for chanid, _polls in self.polls.items():
             chan = await self.bot.fetch_channel(chanid)
             for _p in _polls:
@@ -104,8 +105,8 @@ class Polls(commands.Cog):
 
     def set_entry_field(self, embed, num, entry):
         embed.add_field(name='Votes: {:n}'.format(float(entry[1])),
-                value=f'{NUMBERMOJI[num]} {entry[0]}',
-                inline=False)
+                        value=f'{NUMBERMOJI[num]} {entry[0]}',
+                        inline=False)
 
     def active_embed_args(self, poll):
         return dict(title=f'Poll: **{poll.title}**',
@@ -163,8 +164,8 @@ class Polls(commands.Cog):
     async def send_unordered_poll_embed(self, poll: Poll, ctx):
         await ctx.send(embed=self.make_unordered_poll_embed(poll, ctx))
 
-    async def get_entries_from_user(self, ctx, text: str='Poll added! Send some entries to be voted on:') -> List[str]:
-        await ctx.send(text+'\ne.g. `entry one, entry two, etc`')
+    async def get_entries_from_user(self, ctx, text: str = 'Poll added! Send some entries to be voted on:') -> List[str]:
+        await ctx.send(text + '\ne.g. `entry one, entry two, etc`')
 
         def check(msg):
             return msg.author == ctx.author and msg.channel == ctx.channel
@@ -176,10 +177,11 @@ class Polls(commands.Cog):
 
     async def get_config_from_user(self, ctx, poll: Poll, new_poll=False):
         # protected, number of choices per vote, max votes per poll
-        msgout = await ctx.send(
-            f'Thanks for making a poll! Do you want this poll to be private? **({random.choice(YES)}/{random.choice(NO)})**\n'+
+        await ctx.send(
+            f'Thanks for making a poll! Do you want this poll to be private? **({random.choice(YES)}/{random.choice(NO)})**\n' +
             'This means **only you** can see the results, but everyone can still vote.'
         )
+
         def check(msg):
             return msg.author.id == ctx.author.id and msg.channel == ctx.channel
         r = await self.bot.wait_for('message', check=check)
@@ -277,7 +279,7 @@ class Polls(commands.Cog):
         """Sends a poll to be voted on!"""
         poll = self.get_poll(ctx.channel.id, title)
         if not poll.active:
-            await ctx.send(f'Voting on {poll.title} has not begun yet. If you wanna get \'er movin\', '+
+            await ctx.send(f'Voting on {poll.title} has not begun yet. If you wanna get \'er movin\', ' +
                            f'say `u.begin {poll.title}`.')
         else:
             await self.send_votable(ctx, title)
@@ -292,20 +294,19 @@ class Polls(commands.Cog):
             out += f'You have {remaining} vote{"" if remaining == 1 else "s"} remaining!'
             await user.send(out)
         elif return_code == PollEnums.VOTE_ALREADY_PRESENT:
-            await user.send(f'Error: You\'ve already voted for **{degree}-{entry}**. '+
+            await user.send(f'Error: You\'ve already voted for **{degree}-{entry}**. ' +
                             f'Say `u.myvotes {poll.title}` in the channel to see what you voted for!')
         elif return_code == PollEnums.MAX_VOTES_HIT:
-            await user.send(f'You\'ve hit the max number of votes on the poll **{poll.title}**. '+
-                            f'Say `u.myvotes {poll.title}` in the channel to see what you voted for or '+
+            await user.send(f'You\'ve hit the max number of votes on the poll **{poll.title}**. ' +
+                            f'Say `u.myvotes {poll.title}` in the channel to see what you voted for or ' +
                             f'`u.resetmyvotes {poll.title}` to reset your votes so you can vote again.')
         elif return_code == PollEnums.POLL_NOT_ACTIVE:
-            await user.send(f'Error: the poll **{poll.title}** is not accepting votes right now. '+
+            await user.send(f'Error: the poll **{poll.title}** is not accepting votes right now. ' +
                             f'Send `u.activate {poll.title}` in the channel to reopen voting.')
-
 
     async def process_vote(self, reaction, user, poll):
         msg = reaction.message
-        channel = msg.channel
+        channel = msg.channel # noqa
         entry = self.entry_from(msg)
         voter = self.voter_from(user)
         degree = self.degree_from(reaction)
@@ -413,7 +414,14 @@ class Polls(commands.Cog):
     async def edit(self, ctx, poll: str, *, options: str):
         """Edit your poll.
 
-        Example usage: `u.edit <title> ordinal=False max_votes=1 protected=False`."""
+        Example usage: `u.edit <title> ordinal=False max_votes=1 protected=False`.
+        
+        Values:
+        ordinal=true|false
+        max_votes=<int>|half
+        protected=true|false
+        max_entries=<int>
+        """
         p = self.get_poll(ctx.channel.id, poll)
         if ctx.author.id not in (p.owner_id, 173978157349601283):
             await ctx.send('Only the owner of a poll can edit its properties.')
@@ -517,16 +525,22 @@ class Polls(commands.Cog):
         await self.bot.close()
 
     def verify_saved_polls(self, filename):
+        print('verifying save matches current state at', filename)
         dummy_polls = Polls(None, filename, False)
-        print(dummy_polls)
-        print(self)
-        if not dummy_polls.polls == self.polls:
+        # print(dummy_polls)
+        # print(self)
+        if self != dummy_polls:  # TODO will always fail rn
+            print('saved poll does not match current state')
             return False
-        return True            
-        
+        print('saved poll matches current state')
+        return True
+
     def finalize_saved_polls(self, filename):
+        print('removing polls.unm')
         os.remove('polls.unm')
+        print('renaming', filename, 'to polls.unm')
         os.rename(filename, 'polls.unm')
+        print('renamed')
 
     @tasks.loop(hours=2)
     async def task_save_polls(self):

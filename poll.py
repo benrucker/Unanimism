@@ -1,6 +1,6 @@
 from enum import Enum, auto
-from math import ceil
-from typing import Dict, List, Optional, Set, Tuple, Union
+from typing import Dict, List, Optional, Set, Tuple, Union # noqa
+
 
 class PollEnums(Enum):
     SUCCESS = auto()
@@ -35,7 +35,7 @@ class EntryVotes():
             raise RuntimeError("Votes parameter is not of type dict")
         elif not votes:
             votes = dict()
-        for i in range(1, ordinance+1):
+        for i in range(1, ordinance + 1):
             if i not in votes.keys():
                 votes[i] = set()
         self.votes: Dict[int, Set[Voter]] = votes
@@ -53,7 +53,7 @@ class EntryVotes():
     def remove_votes(self):
         """Reinitialize the votes dict to reset votes."""
         self.votes = dict()
-        for i in range(1, self.ordinance+1):
+        for i in range(1, self.ordinance + 1):
             self.votes[i] = set()
 
     def remove_votes_from(self, voter):
@@ -74,15 +74,14 @@ class EntryVotes():
         return total
 
     def set_ordinance(self, new: int):
-        diff = self.ordinance - new
         if self.ordinance == new:
             return
         elif self.ordinance < new:
             # add new sets for votes
-            for i in range(self.ordinance+1, new+1):
+            for i in range(self.ordinance + 1, new + 1):
                 self.votes[i] = set()
         else:  # self.ordinance > new
-            for i in range(new+1, self.ordinance+1):
+            for i in range(new + 1, self.ordinance + 1):
                 del self.votes[i]
         self.ordinance = new
 
@@ -180,7 +179,7 @@ class Poll():
             print('user has already voted for that entry and degree')
             return PollEnums.VOTE_ALREADY_PRESENT
         elif self.num_votes_by(voter, degree) >= self.num_votes_per_person:
-            print(f'Voter {voter.name} already has the max number '+
+            print(f'Voter {voter.name} already has the max number ' +
                   f'of votes of degree {degree} on {self.title}')
             return PollEnums.MAX_VOTES_HIT
         return self.entries[entry].add_vote(degree, voter)
@@ -190,7 +189,7 @@ class Poll():
         for title, entry in self.entries.items():
             entry.set_ordinance(3 if ordinal else 1)
 
-    def set_num_votes_per_person(self, num: int =1, half: bool =False):
+    def set_num_votes_per_person(self, num: int = 1, half: bool = False):
         if half:
             # half, rounded down, min of 1
             self.num_votes_per_person = max(len(self.entries) // 2, 1)
@@ -270,7 +269,6 @@ class Poll():
                .format(self)
 
     def __eq__(self, other):
-        print('\n\n',self.__dict__,'\n\n',other.__dict__,'\n')
         return self.__dict__ == other.__dict__
 
     def __hash__(self):
