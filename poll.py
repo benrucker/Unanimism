@@ -138,7 +138,7 @@ class EntryVotes():
 
 class Poll():
     """A poll object!
-    
+
     This class interfaces between external sources and EntryVotes objects.
     Thus, this class acts as a restrictor for what can and can't be done
     with EntryVotes objects. For example, this class enforces an ordinance of

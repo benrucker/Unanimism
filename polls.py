@@ -375,7 +375,7 @@ class Polls(commands.Cog):
         out = ''
         if ctx.channel.id not in self.polls or len(self.polls[ctx.channel.id]) == 0:
             await ctx.send('There are no active polls right now. Make your own with `u.poll <title>`!')
-        else:    
+        else:
             for poll in self.polls[ctx.channel.id]:
                 out += '\n**' + poll.title + '**'
             await ctx.send(out)
@@ -424,7 +424,7 @@ class Polls(commands.Cog):
         """Edit your poll.
 
         Example usage: `u.edit <title> ordinal=False max_votes=1 protected=False`.
-        
+
         Values:
         ordinal=true|false
         max_votes=<int>|half
