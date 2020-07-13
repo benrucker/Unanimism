@@ -410,6 +410,15 @@ class Polls(commands.Cog):
         else:
             await ctx.send(f'**{", ".join(entries[1:])}** were combined with **{entries[0]}**')
 
+    @commands.command(aliases=[], hidden=True)
+    async def removeentry(self, ctx, title: str):
+        """Remove an entry from a poll."""
+        poll = self.get_poll(ctx.channel.id, title)
+        entries: List[str] = await self.get_entries_from_user(ctx, text='Alright! Send the entries you want to remove:')
+        for entry in entries:
+            poll.remove_entry(entry)
+        await self.send_unordered_poll_embed(poll, ctx)
+
     @commands.command()
     async def edit(self, ctx, poll: str, *, options: str):
         """Edit your poll.
