@@ -16,7 +16,7 @@ YES = ['yes','yeah','yep','yeppers','of course','ye','y','ya','yah', 'yea', 'yus
 NO  = ['no','n','nope','nay','nada', 'nah', 'na']
 
 def setup(bot):
-    print('Loading Polls Cog')
+    print('Loading Polls Extension')
     bot.add_cog(Polls(bot, 'polls.unm', True))
 
 class Polls(commands.Cog):
