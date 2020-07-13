@@ -488,6 +488,7 @@ class Polls(commands.Cog):
         print(self.polls[ctx.channel.id])
         self.polls[ctx.channel.id] = set()
         print(self.polls[ctx.channel.id])
+        await ctx.send('All the polls are gone. ')
 
     @commands.is_owner()
     @commands.command(aliases=[], hidden=True)
