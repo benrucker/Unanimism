@@ -272,15 +272,29 @@ class Poll():
     def unregister_messages(self):
         self.active_messages = set()
 
+    # def attrs(self):
+    #     return ''.join([self.title,
+    #                    self.guild_id,
+    #                    self.channel_id,
+    #                    self.owner_id,
+    #                    self.protected,
+    #                    self.active,
+    #                    self.can_vote_for_half,
+    #                    self.num_votes_per_person,
+    #                    self.ordinal,
+    #                    self.max_entries,
+    #                    self.entries,
+    #                    ])
+
     def __str__(self):
         return 'Poll(title={0.title}, active={0.active}, ordinal={0.ordinal}, votes={0.entries})'\
                .format(self)
 
-    def __eq__(self, other):
-        return self.__dict__ == other.__dict__
+    # def __eq__(self, other):
+    #     return self.attrs() == other.attrs()
 
-    def __hash__(self):
-        return hash(self.__dict__.values())
+    # def __hash__(self):
+    #     return hash(self.attrs())
 
     def __repr__(self):
         return self.__str__()
