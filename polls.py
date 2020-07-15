@@ -388,15 +388,16 @@ class Polls(commands.Cog):
             _entries = entries.split(', ')
         else:
             _entries = await self.get_entries_from_user(ctx)
-        cutoff = _poll.max_entries - len(_poll.entries)
-        if cutoff == 0:
-            out = f'**{_poll.title}** already has the max number of entries!'
+        space_left = _poll.max_entries - len(_poll.entries)
+        to_drop = len(_entries) - space_left
+        if space_left == 0:
+            out = f'**{_poll.title}** already has the max number of entries! '
         else:
-            _entries = _entries[:cutoff]
+            _entries = _entries[:space_left]
             _poll.add_entries(_entries)
-            out = f'Entries added! `u.show {_poll.title}` to see them!'
-        if cutoff > 0:
-            out += f' ({cutoff} entries were not added due to hitting the max of {_poll.max_entries})'
+            out = f'Entries added! `u.show {_poll.title}` to see them! '
+        if to_drop > 0:
+            out += f'({to_drop} entries were not added due to hitting the max of {_poll.max_entries})'
         await ctx.send(out)
 
     @commands.command(aliases=[], hidden=True)
