@@ -21,12 +21,19 @@ def setup(bot):
     bot.add_cog(Polls(bot, 'polls.unm', True))
 
 
+def is_admin():
+    def predicate(ctx):
+        return ctx.channel.permissions_for(ctx.author).administrator
+    return commands.check(predicate)
+
+
 class Polls(commands.Cog):
     """Cog to interface polls with discord."""
 
     def __init__(self, bot, polls_file, enable: bool):
         self.bot = bot
         self.polls = self.load_polls(polls_file)  # dict(int, set(Poll))
+        self.guild_info = self.load_guild_info('ginfo.unm')
         if enable:
             self.task_save_polls.start()
 
@@ -38,21 +45,43 @@ class Polls(commands.Cog):
             print('No poll object to load')
             return dict()
 
+    def load_guild_info(self, ginfo_file: str) -> Dict[int, Dict]:
+        try:
+            with open(ginfo_file, 'rb') as f:
+                return pickle.load(f)
+        except:
+            print('No poll object to load')
+            return dict()
+
     def save_polls(self, filename):
         print('saving polls')
         with open(filename, 'wb') as f:
             pickle.dump(self.polls, f)
             print(f'saved polls to {filename}')
 
+    def save_guild_info(self, filename):
+        print('saving ginfo')
+        with open(filename, 'wb') as f:
+            pickle.dump(self.guild_info, f)
+            print(f'saved ginfo to {filename}')
+
     def cog_unload(self):
         # cleanup cannot go here due to it being a coroutine
         self.task_save_polls.cancel()
         self.save_polls('polls.unm')
+        self.save_guild_info('ginfo.unm')
         reload(poll)
 
     async def cleanup(self):
         # await self.remove_poll_reactions()
         await self.remove_votable_polls()
+
+    def set_guild_info(self, g_id, param, value):
+        if g_id not in self.guild_info:
+            self.guild_info[g_id] = dict()
+        if param not in self.guild_info[g_id]:
+            self.guild_info[g_id][param] = dict()
+        self.guild_info[g_id][param] = value
 
     async def remove_poll_reactions(self):
         for chanid, _polls in self.polls.items():
@@ -96,6 +125,16 @@ class Polls(commands.Cog):
 
     async def send_poll(self, poll: Poll, ctx):
         await ctx.send('```' + str(poll) + '```')
+
+    def get_pollster_role(self, guild: discord.Guild):
+        _id = self.guild_info[guild.id]['pollster role']
+        return guild.get_role(_id)
+
+    def user_has_access_to(self, user: discord.Member, poll: Poll, guild: discord.Guild):
+        if self.get_pollster_role(guild) in user.roles:
+            return True
+        else:
+            return user.id == poll.owner_id
 
     def set_author_footer(self, embed, poll: Poll):
         poll_owner = self.bot.get_user(poll.owner_id)
@@ -433,7 +472,8 @@ class Polls(commands.Cog):
         max_entries=<int>
         """
         p = self.get_poll(ctx.channel.id, poll)
-        if ctx.author.id not in (p.owner_id, 173978157349601283):
+        # if ctx.author.id not in (p.owner_id, 173978157349601283):
+        if not self.user_has_access_to(ctx.author, p, ctx.guild):
             await ctx.send('Only the owner of a poll can edit its properties.')
             return
         out = ''
@@ -512,6 +552,17 @@ class Polls(commands.Cog):
         await ctx.author.send(out)
         if out2:
             await ctx.author.send(out2)
+
+    @is_admin()  # TODO refactor to permissions cog
+    @commands.command()
+    async def setrole(self, ctx, role: discord.Role):
+        """Set the pollster role. Anyone with this role can override private poll restrictions."""
+        self.set_guild_info(ctx.guild.id, 'pollster role', role.id)
+
+    @is_admin()
+    @commands.command()
+    async def pollster(self, ctx):
+        await ctx.send(self.get_pollster_role(ctx.guild))
 
     @commands.is_owner()
     @commands.command(aliases=[], hidden=True)
