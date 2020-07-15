@@ -4,7 +4,7 @@ from discord.ext import commands, tasks
 from importlib import reload
 import os
 import pickle
-import poll
+import poll as pollmodule
 from poll import Poll, PollEnums, Voter
 import random
 from typing import Dict, List, Optional, Set, Union
@@ -70,7 +70,7 @@ class Polls(commands.Cog):
         self.task_save_polls.cancel()
         self.save_polls('polls.unm')
         self.save_guild_info('ginfo.unm')
-        reload(poll)
+        reload(pollmodule)
 
     async def cleanup(self):
         # await self.remove_poll_reactions()
@@ -130,11 +130,16 @@ class Polls(commands.Cog):
         _id = self.guild_info[guild.id]['pollster role']
         return guild.get_role(_id)
 
-    def user_has_access_to(self, user: discord.Member, poll: Poll, guild: discord.Guild):
-        if self.get_pollster_role(guild) in user.roles:
+    def user_has_access_to_poll(self, user: discord.Member, poll: Poll, guild: discord.Guild):
+        if not poll.protected:
             return True
         else:
-            return user.id == poll.owner_id
+            return self.user_has_elevated_access_to_poll(user, poll, guild)
+
+    def user_has_elevated_access_to_poll(self, user: discord.Member, poll: Poll, guild: discord.Guild):
+        return any([self.get_pollster_role(guild) in user.roles,
+                   user.id == poll.owner_id,
+                   ])
 
     def set_author_footer(self, embed, poll: Poll):
         poll_owner = self.bot.get_user(poll.owner_id)
@@ -261,15 +266,18 @@ class Polls(commands.Cog):
         """Turn on voting for a poll!"""
         for poll in self.polls[ctx.channel.id]:
             if poll.title == title:
-                self.activate(poll)
-                await ctx.send(f'Poll activated! `u.results {poll.title}` to see the results after voting!')
-                await self.send_votable(ctx, poll)
+                if self.user_has_access_to_poll(ctx.author, poll, ctx.guild):
+                    self.activate(poll)
+                    await ctx.send(f'Poll activated! `u.results {poll.title}` to see the results after voting!')
+                    await self.send_votable(ctx, poll)
+                else:
+                    await ctx.send(f'This poll is private, so only the owner can start it!')
 
     @commands.command(aliases=[])
     async def end(self, ctx, title: str):
         """End voting on a poll."""
         _p = self.get_poll(ctx.channel.id, title)
-        if _p.protected and ctx.author.id != _p.owner_id:
+        if not self.user_has_access_to_poll(ctx.author, _p, ctx.guild):
             await ctx.send('Sorry mate, this poll can only be closed by the owner!')
         else:
             self.deactivate(_p)
@@ -283,7 +291,7 @@ class Polls(commands.Cog):
     async def removepollforever(self, ctx, title: str):
         """Remove a poll from the channel. Warning: permanent!"""
         _p = self.get_poll(ctx.channel.id, title)
-        if _p.owner_id == ctx.author.id:
+        if self.user_has_elevated_access_to_poll(ctx.author, _p, ctx.guild):
             self.delete_poll(_p)
             await ctx.send(f'The {_p.title} poll is gone. Forever!')
 
@@ -389,17 +397,17 @@ class Polls(commands.Cog):
     async def results(self, ctx, title, here: Optional[str]):
         """See the results of a poll!"""
         _p = self.get_poll(ctx.channel.id, title)
-        if _p.protected:
-            if ctx.author.id == _p.owner_id:
+        if self.user_has_access_to_poll(ctx.author, _p, ctx.guild):
+            if _p.protected:
                 if here and here.lower() == 'here':
                     dest = ctx
                 else:
                     dest = ctx.author
             else:
-                await ctx.send('This poll is protected, so only the owner can see the results!')
-                return
+                dest = ctx
         else:
-            dest = ctx
+            await ctx.send('This poll is protected, so only the owner can see the results!')
+            return
         await self.send_poll_results_embed(_p, dest)
 
     @commands.command(aliases=[])
@@ -472,8 +480,7 @@ class Polls(commands.Cog):
         max_entries=<int>
         """
         p = self.get_poll(ctx.channel.id, poll)
-        # if ctx.author.id not in (p.owner_id, 173978157349601283):
-        if not self.user_has_access_to(ctx.author, p, ctx.guild):
+        if not self.user_has_elevated_access_to_poll(ctx.author, p, ctx.guild):
             await ctx.send('Only the owner of a poll can edit its properties.')
             return
         out = ''
@@ -536,10 +543,10 @@ class Polls(commands.Cog):
         await ctx.author.send(out)
 
     @commands.command()
-    async def allvotes(self, ctx, poll: str):
+    async def allvotes(self, ctx, title: str):
         """WIP: see who voted for what on a poll. Warning: bad"""
-        p = self.get_poll(ctx.channel.id, poll)
-        if p.protected and ctx.author.id not in [p.owner_id, self.bot.owner_id]:
+        p = self.get_poll(ctx.channel.id, title)
+        if not self.user_has_access_to_poll(ctx.author, p, ctx.guild):
             await ctx.send('This poll is private, so only the owner can see the results!')
             return
         out = ''
