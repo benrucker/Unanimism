@@ -1,5 +1,9 @@
 from enum import Enum, auto
+import logging
 from typing import Dict, List, Optional, Set, Tuple, Union # noqa
+
+
+logging.basicConfig(level=logging.INFO)
 
 
 class PollEnums(Enum):
@@ -28,8 +32,12 @@ class Voter():
 
 
 class EntryVotes():
-    """This class stores the votes for a single poll entry."""
-    def __init__(self, votes: Optional[Dict[int, Set[Voter]]], ordinance=1):
+    """This class stores the votes for a single poll entry.
+
+    An EntryVotes object can have an ordinance that describes the different
+    positions of an entered vote. i.e, it allows for first-choice votes, second-
+    choice votes, and so on. """
+    def __init__(self, votes: Optional[Dict[int, Set[Voter]]] = None, ordinance=1):
         """Construct an EntryVotes object. If votes is none, construct an empty list."""
         if votes and type(votes) is not dict:
             raise RuntimeError("Votes parameter is not of type dict")
@@ -60,7 +68,7 @@ class EntryVotes():
         """Remove votes from a specific voter."""
         for entry_votes in self.votes.values():
             if voter in entry_votes:
-                print(f'Removing vote from user {voter}')
+                logging.debug(f'Removing vote from user {voter}')
                 entry_votes.remove(voter)
 
     def change_vote(self, old_deg: int, new_deg: int, voter: Voter):
@@ -89,7 +97,7 @@ class EntryVotes():
         return str(self.votes)
 
     def __repr__(self):
-        return self.__str__()
+        return 'EntryVotes object: ' + self.__str__()
 
     def __float__(self) -> float:
         out = 0
@@ -103,11 +111,11 @@ class EntryVotes():
         return int(float(self))
 
     def __add__(self, other):
-        out = dict()  # list(set(Voter))
-        for c in range(1, max(len(self.votes), len(other.votes))):
-            if c < len(self.votes) and c < len(other.votes):
+        out: Dict[int, Set[Voter]] = dict()
+        for c in range(1, max(len(self.votes), len(other.votes)) + 1):
+            if c < len(self.votes)+1 and c < len(other.votes)+1:
                 out[c] = self.votes[c].union(other.votes[c])
-            elif c < len(self.votes):
+            elif c < len(self.votes)+1:
                 out[c] = self.votes[c]
             else:
                 out[c] = other.votes[c]
@@ -173,14 +181,14 @@ class Poll():
 
     def add_vote(self, entry: str, voter: Voter, degree: int) -> PollEnums:
         if not self.active:
-            print(f'Poll {self.title} is not active.')
+            logging.debug(f'Poll {self.title} is not active.')
             return PollEnums.POLL_NOT_ACTIVE
         elif voter in self.entries[entry].votes[degree]:
-            print('user has already voted for that entry and degree')
+            logging.debug('user has already voted for that entry and degree')
             return PollEnums.VOTE_ALREADY_PRESENT
         elif self.num_votes_by(voter, degree) >= self.num_votes_per_person:
-            print(f'Voter {voter.name} already has the max number ' +
-                  f'of votes of degree {degree} on {self.title}')
+            logging.debug(f'Voter {voter.name} already has the max number ' +
+                          f'of votes of degree {degree} on {self.title}')
             return PollEnums.MAX_VOTES_HIT
         return self.entries[entry].add_vote(degree, voter)
 
@@ -195,7 +203,7 @@ class Poll():
             self.num_votes_per_person = max(len(self.entries) // 2, 1)
         else:
             self.num_votes_per_person = num
-        print('set num votes to', self.num_votes_per_person)
+        # print('set num votes to', self.num_votes_per_person)
 
     def update_num_votes(self):
         self.set_num_votes_per_person(num=self.num_votes_per_person,
@@ -211,10 +219,10 @@ class Poll():
 
     def add_entry(self, entry):
         if entry not in self.entries.keys():
-            self.entries[entry] = EntryVotes(None, ordinance=3 if self.ordinal else 1)
+            self.entries[entry] = EntryVotes(votes=None, ordinance=3 if self.ordinal else 1)
             self.update_num_votes()
         else:
-            print(f'{entry} already in poll')
+            logging.debug(f'{entry} already in poll')
 
     def add_entries(self, _entries: List[str]):
         for entry in _entries:
@@ -245,7 +253,7 @@ class Poll():
             del self.entries[entry]
             self.update_num_votes()
         except:
-            print(f'{entry} not in entries')
+            logging.debug(f'{entry} not in entries')
 
     def remove_votes_from_user(self, id: int):
         for entry in self.entries.values():
