@@ -562,14 +562,14 @@ class Polls(commands.Cog):
 
     @is_admin()  # TODO refactor to permissions cog
     @commands.command()
-    async def setrole(self, ctx, role: discord.Role):
+    async def pollster(self, ctx, *, role: Optional[discord.Role]):
         """Set the pollster role. Anyone with this role can override private poll restrictions."""
-        self.set_guild_info(ctx.guild.id, 'pollster role', role.id)
-
-    @is_admin()
-    @commands.command()
-    async def pollster(self, ctx):
-        await ctx.send(self.get_pollster_role(ctx.guild))
+        if not role:
+            out = 'The current pollster role is '
+        else:
+            self.set_guild_info(ctx.guild.id, 'pollster role', role.id)
+            out = 'The pollster role has been set to '
+        await ctx.send(out + '**' + str(self.get_pollster_role(ctx.guild)) + '**')
 
     @commands.is_owner()
     @commands.command(aliases=[], hidden=True)
