@@ -617,9 +617,9 @@ class Polls(commands.Cog):
         backup = 'backup.unm'
         self.save_polls(backup)
         print('saved')
-        if not self.verify_saved_polls(backup):
-            print('backup does not match current state. aborting')
-            return False
+        # if not self.verify_saved_polls(backup):  # race condition exists where user changes poll after save but before load
+        #     print('backup does not match current state. aborting')
+        #     return False
         print('finalizing backup')
         self.finalize_saved_polls(backup)
         # resume event loop
