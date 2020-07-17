@@ -261,7 +261,7 @@ class Polls(commands.Cog):
         poll.active = False
         # del self.polls[poll]
 
-    @commands.command(aliases=[])
+    @commands.command(aliases=['start'])
     async def begin(self, ctx, title: str):
         """Turn on voting for a poll!"""
         p = self.get_poll(ctx.channel.id, title)
