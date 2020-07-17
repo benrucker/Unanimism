@@ -542,6 +542,17 @@ class Polls(commands.Cog):
         await ctx.author.send(out)
 
     @commands.command()
+    async def who(self, ctx, title: str):
+        p = self.get_poll(ctx.channel.id, title)
+        voters = p.get_all_voters()
+        if len(voters) == 0:
+            out = 'Nobody has voted so far!'
+        else:
+            v_list = '\n'.join([x.name for x in voters])
+            out = 'Here are the voters so far:\n' + v_list
+        await ctx.send(out)
+
+    @commands.command()
     async def allvotes(self, ctx, title: str):
         """WIP: see who voted for what on a poll. Warning: bad"""
         p = self.get_poll(ctx.channel.id, title)
