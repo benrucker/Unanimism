@@ -546,7 +546,7 @@ class Polls(commands.Cog):
         await ctx.author.send(out)
 
     @commands.command()
-    async def who(self, ctx, title: str):
+    async def who(self, ctx, title: str, here: Optional[str]):
         p = self.get_poll(ctx.channel.id, title)
         voters = p.get_all_voters()
         if len(voters) == 0:
@@ -554,7 +554,8 @@ class Polls(commands.Cog):
         else:
             v_list = '\n'.join([x.name for x in voters])
             out = 'Here are the voters so far:\n' + v_list
-        await ctx.send(out)
+        dest = self.get_dest_from_arg(ctx, p, here)
+        await dest.send(out)
 
     @commands.command()
     async def allvotes(self, ctx, title: str):
