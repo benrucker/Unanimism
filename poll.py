@@ -272,6 +272,13 @@ class Poll():
     def unregister_messages(self):
         self.active_messages = set()
 
+    def get_all_voters(self) -> Set[Voter]:
+        out: Set[Voter] = set()
+        for entry in self.entries.values():
+            for votes in entry.votes.values():
+                out = out | votes
+        return out
+
     # def attrs(self):
     #     return ''.join([self.title,
     #                    self.guild_id,
