@@ -264,14 +264,13 @@ class Polls(commands.Cog):
     @commands.command(aliases=[])
     async def begin(self, ctx, title: str):
         """Turn on voting for a poll!"""
-        for poll in self.polls[ctx.channel.id]:
-            if poll.title == title:
-                if self.user_has_access_to_poll(ctx.author, poll, ctx.guild):
-                    self.activate(poll)
-                    await ctx.send(f'Poll activated! `u.results {poll.title}` to see the results after voting!')
-                    await self.send_votable(ctx, poll)
-                else:
-                    await ctx.send(f'This poll is private, so only the owner can start it!')
+        p = self.get_poll(ctx.channel.id, title)
+        if self.user_has_access_to_poll(ctx.author, p, ctx.guild):
+            self.activate(p)
+            await ctx.send(f'Poll activated! `u.results {p.title}` to see the results after voting!')
+            await self.send_votable(ctx, p)
+        else:
+            await ctx.send(f'This poll is private, so only the owner can start it!')
 
     @commands.command(aliases=[])
     async def end(self, ctx, title: str):
