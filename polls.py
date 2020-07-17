@@ -392,18 +392,22 @@ class Polls(commands.Cog):
         print(f'Got degree {deg} from {str(reaction)}')
         return deg
 
+    def get_dest_from_arg(self, ctx, poll: Poll, arg: str):
+        if poll.protected:
+            if arg and arg.lower() == 'here':
+                dest = ctx
+            else:
+                dest = ctx.author
+        else:
+            dest = ctx
+        return dest
+
     @commands.command(aliases=[])
     async def results(self, ctx, title, here: Optional[str]):
         """See the results of a poll!"""
         _p = self.get_poll(ctx.channel.id, title)
         if self.user_has_access_to_poll(ctx.author, _p, ctx.guild):
-            if _p.protected:
-                if here and here.lower() == 'here':
-                    dest = ctx
-                else:
-                    dest = ctx.author
-            else:
-                dest = ctx
+            dest = self.get_dest_from_arg(ctx, _p, here)
         else:
             await ctx.send('This poll is protected, so only the owner can see the results!')
             return
