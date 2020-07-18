@@ -625,7 +625,7 @@ class Polls(commands.Cog):
         os.rename(filename, 'polls.unm')
         print('renamed')
 
-    @tasks.loop(hours=2)
+    @tasks.loop(minutes=30)
     async def task_save_polls(self):
         # pause event loop
         print('backing up polls')
