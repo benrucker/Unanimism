@@ -13,8 +13,8 @@ intents.members = True
 class Unanimism(commands.Bot):
     """Unanimism \\ yüˈnanəˌmizəm \\ noun: unifying principles are more significant than personal individualities."""
 
-    def __init__(self, command_prefix):
-        super().__init__(command_prefix=command_prefix)
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
 
     def log_message(self, message):
         print(f'[{time.ctime()}] {message.author.name} - {message.guild} #{message.channel}: {message.content}')
@@ -45,7 +45,7 @@ class Unanimism(commands.Bot):
 if __name__ == '__main__':
     with open('secret') as f:
         secret = f.read()
-    bot = Unanimism(command_prefix=commands.when_mentioned_or('u.'), intents=intents)
+    bot = Unanimism(command_prefix=commands.when_mentioned_or('u.'))
     bot.load_extension('polls')
     bot.load_extension('presence')
 
@@ -57,4 +57,4 @@ if __name__ == '__main__':
         for ext in bot.extensions:
             bot.reload_extension(ext)
 
-    bot.run(secret)
+    bot.run(secret, intents=intents)
