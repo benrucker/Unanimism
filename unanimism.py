@@ -45,7 +45,7 @@ class Unanimism(commands.Bot):
 if __name__ == '__main__':
     with open('secret') as f:
         secret = f.read()
-    bot = Unanimism(command_prefix=commands.when_mentioned_or('u.'))
+    bot = Unanimism(command_prefix=commands.when_mentioned_or('u.'), intents=intents)
     bot.load_extension('polls')
     bot.load_extension('presence')
 
@@ -57,4 +57,4 @@ if __name__ == '__main__':
         for ext in bot.extensions:
             bot.reload_extension(ext)
 
-    bot.run(secret, intents=intents)
+    bot.run(secret)
