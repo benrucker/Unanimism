@@ -148,9 +148,11 @@ class Polls(commands.Cog):
                          )
 
     def set_entry_field(self, embed, num, entry):
-        embed.add_field(name='Votes: {:n}'.format(float(entry[1])),
-                        value=f'{NUMBERMOJI[num]} {entry[0]}',
-                        inline=False)
+        embed.add_field(
+            value='Votes: {:n}'.format(float(entry[1])),
+            name=f'{NUMBERMOJI[num]} {entry[0]}',
+            inline=False
+        )
 
     def active_embed_args(self, poll):
         return dict(title=f'Poll: **{poll.title}**',
